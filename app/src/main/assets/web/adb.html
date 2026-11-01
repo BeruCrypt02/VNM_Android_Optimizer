@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MkVenomPro ADB &amp; Fastboot</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="theme.css">
+<style>
+  body{padding-bottom:calc(var(--nav-h) + 24px)}
+  main{max-width:760px;margin:0 auto;padding:12px 14px}
+  .tab{display:none}.tab.active{display:block}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .row>*{min-width:0}
+  select,input[type=text]{width:100%;padding:11px 12px;font-size:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--text)}
+  .b{border:0;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:600;background:#6d2b4b;color:#ffd9e6}
+  .b.fill{background:#ffb0cf;color:#5c1134}
+  .b.warn{background:#5e1a17;color:#ffb4ab}
+  .b:disabled{opacity:.4}
+  .b:active{filter:brightness(1.2)}
+  .grid{display:flex;flex-wrap:wrap;gap:6px}
+  details{background:var(--surface);border-radius:22px;padding:4px 14px;margin-bottom:10px}
+  summary{font-weight:700;font-size:15px;padding:12px 0;cursor:pointer}
+  details .grid{padding-bottom:12px}
+  #out{white-space:pre-wrap;word-break:break-all;font:12px/1.5 ui-monospace,Menlo,monospace;max-height:42vh;overflow:auto;margin:0;color:#e9d3db}
+  .st{font-size:13px;color:var(--muted);margin-top:8px}
+  .st.ok{color:#8fd6a4}.st.bad{color:#ffb4ab}
+  .bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin-top:8px}
+  .bar i{display:block;height:100%;width:0;background:#ffb0cf;transition:width .2s}
+  h3{margin:0 0 8px;font-size:15px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">M</div>
+    <div class="brand-text">
+      <h1>ADB &amp; Fastboot</h1>
+      <span class="brand-sub">Phone = host &middot; target over OTG</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a class="lang-btn" href="index.html" style="text-decoration:none">Heat</a>
+    <a class="lang-btn" href="tools.html" style="text-decoration:none">Tools</a>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Target device</h2>
+    <select id="dev"></select>
+    <div class="row" style="margin-top:8px">
+      <button class="b fill" id="perm">Allow USB access</button>
+      <button class="b" id="refresh">Refresh</button>
+    </div>
+    <div class="st" id="status">Looking for a target…</div>
+    <p class="st" style="margin-bottom:0">Plug the target phone with an OTG cable. For ADB: enable USB debugging on it and accept the prompt (tick &ldquo;Always allow&rdquo;). For fastboot: boot it to the bootloader.</p>
+  </div>
+
+  <!-- ================= ADB ================= -->
+  <section id="tab-adb" class="tab active">
+    <div class="card">
+      <h2>Custom ADB command</h2>
+      <input type="text" id="adbCmd" placeholder="shell command, e.g. pm list packages -3" autocapitalize="off" autocomplete="off" spellcheck="false">
+      <div class="row" style="margin-top:8px"><button class="b fill" id="adbRun">Run (adb shell)</button></div>
+      <input type="text" id="param" placeholder="Parameter {p} (package, value, &quot;x y&quot;…)" style="margin-top:10px" autocapitalize="off" autocomplete="off" spellcheck="false">
+      <p class="st" style="margin-bottom:0">Buttons whose command contains {p} use this field.</p>
+    </div>
+    <div id="adbGroups"></div>
+    <div class="card">
+      <h2>Reboot &amp; services</h2>
+      <div class="grid" id="adbReboot"></div>
+    </div>
+    <div class="card">
+      <h2>Install APK</h2>
+      <div class="row"><button class="b" id="apkPick">Choose APK</button><button class="b fill" id="apkGo">Install on target</button></div>
+      <div class="st" id="apkName">No file chosen</div>
+      <div class="bar"><i id="apkBar"></i></div>
+    </div>
+  </section>
+
+  <!-- ================= FASTBOOT ================= -->
+  <section id="tab-fb" class="tab">
+    <div class="card">
+      <h2>Custom fastboot command</h2>
+      <input type="text" id="fbCmd" placeholder="e.g. getvar all, oem device-info, reboot bootloader" autocapitalize="off" autocomplete="off" spellcheck="false">
+      <div class="row" style="margin-top:8px"><button class="b fill" id="fbRun">Run (fastboot)</button></div>
+    </div>
+    <div id="fbGroups"></div>
+    <div class="card">
+      <h2>Flash image</h2>
+      <div class="row">
+        <select id="part" style="flex:1"></select>
+      </div>
+      <input type="text" id="partCustom" placeholder="or type a partition name" style="margin-top:8px" autocapitalize="off" autocomplete="off" spellcheck="false">
+      <div class="row" style="margin-top:8px"><button class="b" id="imgPick">Choose image</button><button class="b warn" id="imgGo">Flash</button></div>
+      <div class="st" id="imgName">No file chosen</div>
+      <div class="bar"><i id="imgBar"></i></div>
+      <p class="st" style="margin-bottom:0">One image per flash, up to the bootloader&rsquo;s max download size (see <i>getvar:max-download-size</i>). Larger or sparse-split images must be flashed from a PC.</p>
+    </div>
+  </section>
+
+  <!-- ================= OUTPUT ================= -->
+  <div class="card">
+    <h2>Output</h2>
+    <pre id="out">Ready.</pre>
+    <div class="row" style="margin-top:8px"><button class="b" id="copy">Copy</button><button class="b" id="clear">Clear</button></div>
+  </div>
+</main>
+
+<nav class="bottom-nav">
+  <button class="tab-btn active" data-tab="adb"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H4zM8 19h8v-2H8z"/></svg><span>ADB</span></button>
+  <button class="tab-btn" data-tab="fb"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg><span>Fastboot</span></button>
+</nav>
+<div id="toast" class="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var H = window.mkvp;
+  var $ = function (id) { return document.getElementById(id); };
+  var devs = [], cur = null, seq = 0, busy = false;
+
+  function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+  function log(s) { var o = $('out'); o.textContent = s; o.scrollTop = 0; }
+  function call(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve) {
+      if (!H) { resolve({ ok: false, out: 'Native USB bridge not available (open this inside the app).' }); return; }
+      var cb = 'mkvp_cb_' + Date.now() + '_' + (seq++);
+      window[cb] = function (s) { try { delete window[cb]; } catch (e) { window[cb] = undefined; } var r; try { r = JSON.parse(s); } catch (e) { r = { ok: false, out: String(s) }; } resolve(r); };
+      args.push(cb);
+      try { H[fn].apply(H, args); } catch (e) { resolve({ ok: false, out: String(e) }); }
+    });
+  }
+
+  /* ---------- presets ---------- */
+  var ADB = [
+    ['Device info', [
+      ['Model', 'getprop ro.product.model'], ['Android', 'getprop ro.build.version.release'], ['Serial', 'getprop ro.serialno'],
+      ['Build fingerprint', 'getprop ro.build.fingerprint'], ['All props', 'getprop'],
+      ['Battery', 'dumpsys battery'], ['Screen size / density', 'wm size; wm density'], ['Storage', 'df -h'],
+      ['CPU info', 'cat /proc/cpuinfo'], ['RAM info', 'head -n 20 /proc/meminfo'], ['Uptime', 'uptime'],
+      ['Wi-Fi IP', 'ip addr show wlan0'], ['Bootloader / AVB state', 'getprop ro.boot.verifiedbootstate; getprop ro.boot.flash.locked; getprop ro.boot.vbmeta.device_state'],
+      ['Active slot', 'getprop ro.boot.slot_suffix'], ['Foreground app', 'dumpsys activity activities | grep mResumedActivity']
+    ]],
+    ['Apps & packages', [
+      ['3rd-party apps', 'pm list packages -3'], ['System apps', 'pm list packages -s'], ['Disabled apps', 'pm list packages -d'],
+      ['Path of {p}', 'pm path {p}'], ['Info of {p}', 'dumpsys package {p} | head -n 60'], ['Launch {p}', 'monkey -p {p} -c android.intent.category.LAUNCHER 1'],
+      ['Force-stop {p}', 'am force-stop {p}'], ['Disable {p}', 'pm disable-user --user 0 {p}'], ['Enable {p}', 'pm enable {p}'],
+      ['Restore {p}', 'cmd package install-existing {p}'],
+      ['Clear data of {p}', 'pm clear {p}', 1], ['Uninstall {p} (user 0)', 'pm uninstall --user 0 {p}', 1]
+    ]],
+    ['Input & screen', [
+      ['Home', 'input keyevent 3'], ['Back', 'input keyevent 4'], ['Recents', 'input keyevent 187'], ['Power', 'input keyevent 26'],
+      ['Vol +', 'input keyevent 24'], ['Vol -', 'input keyevent 25'], ['Wake', 'input keyevent 224'],
+      ['Swipe up', 'input swipe 540 1800 540 600'], ['Tap {p}', 'input tap {p}'], ['Type {p}', 'input text {p}']
+    ]],
+    ['System & settings', [
+      ['Wi-Fi on', 'svc wifi enable'], ['Wi-Fi off', 'svc wifi disable'], ['Data on', 'svc data enable'], ['Data off', 'svc data disable'],
+      ['Stay awake on', 'svc power stayon true'], ['Stay awake off', 'svc power stayon false'],
+      ['Animations off', 'settings put global window_animation_scale 0; settings put global transition_animation_scale 0; settings put global animator_duration_scale 0'],
+      ['Animations normal', 'settings put global window_animation_scale 1; settings put global transition_animation_scale 1; settings put global animator_duration_scale 1'],
+      ['Screen timeout {p} ms', 'settings put system screen_off_timeout {p}'], ['Brightness {p} (0-255)', 'settings put system screen_brightness {p}'],
+      ['Reset size & density', 'wm size reset; wm density reset', 1]
+    ]],
+    ['Logs & processes', [
+      ['Logcat (last 200)', 'logcat -d -t 200'], ['Crash buffer', 'logcat -d -b crash -t 100'], ['Kernel log', 'dmesg | tail -n 100'],
+      ['Top processes', 'top -n 1 -b | head -n 25'], ['Process list', 'ps -A | head -n 40']
+    ]]
+  ];
+  var ADB_SVC = [
+    ['Reboot', 'reboot:'], ['Recovery', 'reboot:recovery'], ['Bootloader', 'reboot:bootloader'], ['FastbootD', 'reboot:fastboot'],
+    ['Sideload', 'reboot:sideload'], ['EDL (Qualcomm)', 'reboot:edl', 1], ['Download (Samsung)', 'reboot:download'],
+    ['adbd as root', 'root:'], ['adbd unroot', 'unroot:'], ['TCP/IP 5555', 'tcpip:5555']
+  ];
+  var FB = [
+    ['Variables', [
+      ['all', 'getvar:all'], ['product', 'getvar:product'], ['serialno', 'getvar:serialno'], ['current-slot', 'getvar:current-slot'],
+      ['slot-count', 'getvar:slot-count'], ['unlocked', 'getvar:unlocked'], ['secure', 'getvar:secure'], ['is-userspace', 'getvar:is-userspace'],
+      ['max-download-size', 'getvar:max-download-size'], ['bootloader ver', 'getvar:version-bootloader'], ['baseband ver', 'getvar:version-baseband'],
+      ['device-info', 'oem device-info']
+    ]],
+    ['Bootloader lock', [
+      ['Unlock ability', 'flashing get_unlock_ability'],
+      ['Unlock (wipes data)', 'flashing unlock', 1], ['Unlock critical', 'flashing unlock_critical', 1], ['Lock', 'flashing lock', 1],
+      ['Old: oem unlock', 'oem unlock', 1], ['Old: oem lock', 'oem lock', 1]
+    ]],
+    ['Slots & erase', [
+      ['Set slot A', 'set_active:a'], ['Set slot B', 'set_active:b'], ['Cancel snapshot update', 'snapshot-update:cancel'],
+      ['Erase cache', 'erase:cache', 1], ['Erase metadata', 'erase:metadata', 1], ['Erase userdata', 'erase:userdata', 1]
+    ]],
+    ['Reboot', [
+      ['Reboot', 'reboot'], ['Bootloader', 'reboot-bootloader'], ['Recovery', 'reboot-recovery'], ['FastbootD', 'reboot-fastboot'],
+      ['Continue boot', 'continue'], ['EDL (Xiaomi)', 'oem edl', 1]
+    ]]
+  ];
+  var PARTS = ['boot', 'init_boot', 'vendor_boot', 'recovery', 'vbmeta', 'vbmeta_system', 'dtbo', 'boot_a', 'boot_b', 'init_boot_a', 'init_boot_b', 'vendor_boot_a', 'vendor_boot_b'];
+
+  /* ---------- state ---------- */
+  function kind() { return cur ? cur.kind : 'none'; }
+  function refreshButtons() {
+    var k = kind(), okAdb = k === 'adb' && cur.perm, okFb = k === 'fastboot' && cur.perm;
+    document.querySelectorAll('[data-m="adb"]').forEach(function (b) { b.disabled = !okAdb || busy; });
+    document.querySelectorAll('[data-m="fb"]').forEach(function (b) { b.disabled = !okFb || busy; });
+    $('perm').disabled = !cur || cur.perm;
+  }
+  function renderStatus() {
+    var s = $('status');
+    if (!cur) { s.className = 'st bad'; s.textContent = 'No target connected.'; return; }
+    var txt = (cur.kind === 'adb' ? 'ADB' : cur.kind === 'fastboot' ? 'Fastboot' : 'USB (not adb/fastboot)') + ' · ' +
+      (cur.perm ? 'USB access granted' : 'USB access needed');
+    s.className = 'st ' + ((cur.kind === 'adb' || cur.kind === 'fastboot') && cur.perm ? 'ok' : 'bad');
+    s.textContent = txt;
+  }
+  function poll() {
+    var list = [];
+    try { list = JSON.parse(H ? H.devices() : '[]'); } catch (e) { list = []; }
+    var sig = JSON.stringify(list);
+    if (sig !== poll._sig) {
+      poll._sig = sig; devs = list;
+      var sel = $('dev'), keep = sel.value;
+      sel.innerHTML = '';
+      if (!list.length) { var o = document.createElement('option'); o.textContent = 'No USB device'; o.value = ''; sel.appendChild(o); }
+      list.forEach(function (d) {
+        var o = document.createElement('option'); o.value = d.name;
+        o.textContent = (d.product || ('VID ' + d.vid.toString(16) + ':' + d.pid.toString(16))) + ' [' + d.kind + ']';
+        sel.appendChild(o);
+      });
+      if (keep && list.some(function (d) { return d.name === keep; })) sel.value = keep;
+      // auto-select an adb/fastboot target
+      if (!list.some(function (d) { return d.name === sel.value; }) || !sel.value) {
+        var t = list.filter(function (d) { return d.kind !== 'other'; })[0] || list[0];
+        if (t) sel.value = t.name;
+      }
+    }
+    cur = devs.filter(function (d) { return d.name === $('dev').value; })[0] || null;
+    renderStatus(); refreshButtons();
+  }
+
+  async function ensurePerm() {
+    if (cur && cur.perm) return true;
+    if (!cur) { toast('No target connected'); return false; }
+    var r = await call('requestPermission', cur.name);
+    poll._sig = null; poll();
+    return r.ok;
+  }
+
+  async function run(fn, arg, label) {
+    if (!cur) { toast('No target connected'); return; }
+    if (!(await ensurePerm())) { log('USB permission denied.'); return; }
+    busy = true; refreshButtons(); log('$ ' + label + '\n…');
+    var r = await call(fn, cur.name, arg);
+    busy = false; refreshButtons();
+    log('$ ' + label + '\n' + (r.ok ? '' : '[error]\n') + r.out);
+  }
+  function param(cmd) {
+    if (cmd.indexOf('{p}') < 0) return cmd;
+    var p = $('param').value.trim();
+    if (!p) { toast('Fill the Parameter field first'); return null; }
+    return cmd.split('{p}').join(p);
+  }
+  function runAdb(cmd, danger) {
+    cmd = param(cmd); if (cmd === null) return;
+    if (danger && !confirm('Run this on the target?\n\n' + cmd)) return;
+    run('adbRun', cmd, 'adb shell ' + cmd);
+  }
+  function runSvc(svc, danger) {
+    if (danger && !confirm('Run "' + svc + '" on the target?')) return;
+    run('adbService', svc, 'adb ' + svc);
+  }
+  function runFb(cmd, danger) {
+    if (danger && !confirm('Dangerous: "' + cmd + '"\nThis can wipe data or change the boot chain. Continue?')) return;
+    run('fbRun', cmd, 'fastboot ' + cmd);
+  }
+
+  /* ---------- build UI ---------- */
+  function mk(txt, cls, fn, mode) {
+    var b = document.createElement('button'); b.className = 'b ' + (cls || ''); b.textContent = txt; b.setAttribute('data-m', mode); b.onclick = fn; return b;
+  }
+  function groups(host, data, mode, runner) {
+    data.forEach(function (g, i) {
+      var d = document.createElement('details'); if (i === 0) d.open = true;
+      var s = document.createElement('summary'); s.textContent = g[0]; d.appendChild(s);
+      var grid = document.createElement('div'); grid.className = 'grid';
+      g[1].forEach(function (it) { grid.appendChild(mk(it[0], it[2] ? 'warn' : '', function () { runner(it[1], it[2]); }, mode)); });
+      d.appendChild(grid); host.appendChild(d);
+    });
+  }
+  groups($('adbGroups'), ADB, 'adb', runAdb);
+  groups($('fbGroups'), FB, 'fb', runFb);
+  ADB_SVC.forEach(function (it) { $('adbReboot').appendChild(mk(it[0], it[2] ? 'warn' : '', function () { runSvc(it[1], it[2]); }, 'adb')); });
+  PARTS.forEach(function (p) { var o = document.createElement('option'); o.value = p; o.textContent = p; $('part').appendChild(o); });
+
+  $('adbRun').setAttribute('data-m', 'adb'); $('apkGo').setAttribute('data-m', 'adb');
+  $('fbRun').setAttribute('data-m', 'fb'); $('imgGo').setAttribute('data-m', 'fb');
+  $('adbRun').onclick = function () { var c = $('adbCmd').value.trim(); if (c) runAdb(c, false); };
+  $('fbRun').onclick = function () { var c = $('fbCmd').value.trim(); if (c) runFb(c, false); };
+  $('adbCmd').onkeydown = function (e) { if (e.key === 'Enter') $('adbRun').click(); };
+  $('fbCmd').onkeydown = function (e) { if (e.key === 'Enter') $('fbRun').click(); };
+
+  async function pick(nameEl) {
+    var r = await call('pickFile');
+    if (r.ok) { nameEl.textContent = r.out + (r.size > 0 ? ' · ' + (r.size / 1048576).toFixed(1) + ' MB' : ''); return true; }
+    return false;
+  }
+  $('apkPick').onclick = function () { pick($('apkName')); };
+  $('imgPick').onclick = function () { pick($('imgName')); };
+  window.mkvpProgress = function (p) { $('apkBar').style.width = p + '%'; $('imgBar').style.width = p + '%'; };
+  $('apkGo').onclick = async function () {
+    if (!(await ensurePerm())) return;
+    busy = true; refreshButtons(); log('Installing…');
+    var r = await call('adbInstall', cur.name);
+    busy = false; refreshButtons(); log((r.ok ? '' : '[error]\n') + r.out);
+  };
+  $('imgGo').onclick = async function () {
+    var part = $('partCustom').value.trim() || $('part').value;
+    if (!confirm('Flash the chosen image to "' + part + '"?')) return;
+    if (!(await ensurePerm())) return;
+    busy = true; refreshButtons(); log('Flashing ' + part + '…');
+    var r = await call('fbFlash', cur.name, part);
+    busy = false; refreshButtons(); log((r.ok ? 'OK\n' : '[error]\n') + r.out);
+  };
+
+  $('perm').onclick = function () { ensurePerm().then(function (ok) { toast(ok ? 'USB access granted' : 'Denied'); }); };
+  $('refresh').onclick = function () { poll._sig = null; poll(); };
+  $('dev').onchange = poll;
+  $('copy').onclick = function () { try { navigator.clipboard.writeText($('out').textContent); toast('Copied'); } catch (e) { toast('Copy failed'); } };
+  $('clear').onclick = function () { log(''); };
+
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.onclick = function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+      btn.classList.add('active'); $('tab-' + btn.getAttribute('data-tab')).classList.add('active');
+    };
+  });
+
+  poll(); setInterval(poll, 2000);
+})();
+</script>
+</body>
+</html>

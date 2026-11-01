@@ -1,0 +1,29 @@
+/* Material-You dark theme shared with the Heat & Battery page */
+@font-face{font-family:'Google Sans';src:url(GoogleSans.woff2) format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
+:root{
+  --bg:#1a1114; --surface:#2c2125; --surface-2:#352a2e; --line:#4a3b41; --line-soft:#41353a;
+  --red:#ffb0cf; --red-dark:#6d2b4b; --red-soft:#5c1134; --text:#f1dee4; --muted:#a08d94;
+  --bar:#251a1e; --nav-h:68px;
+}
+body{font-family:'Google Sans','Google Sans Text',Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.topbar{background:var(--bar);border-bottom:0;border-bottom-left-radius:22px;border-bottom-right-radius:22px;box-shadow:0 2px 10px rgba(0,0,0,.25);padding:16px 18px 14px}
+.topbar h1{font-size:20px;letter-spacing:-.2px;font-weight:700;background:linear-gradient(90deg,#ffb48f,#f6a9c4 40%,#dcb6ff 75%,#9ad8e6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand-sub{display:block;color:#e9d3db;text-transform:none;font-size:11.5px;letter-spacing:.2px}
+.logo{background:radial-gradient(circle at 35% 30%,#8a3a62,#5a2340 70%);color:#ffd9e6;box-shadow:0 0 0 3px rgba(255,176,207,.12);border-radius:50%}
+.owner-strip{background:var(--bg);color:var(--muted);border-bottom:0}
+.owner-strip b{color:var(--red)}
+.badge{background:var(--surface-2);color:#d6c2c9;border-color:var(--line)}
+.badge.ok{background:#1e4a2c;color:#8fd6a4;border-color:#2c6a40}
+.badge.bad{background:#5e1a17;color:#ffb4ab;border-color:#8a2a25}
+.lang-btn{border-radius:999px;border-color:var(--red-dark);color:var(--red);background:rgba(109,43,75,.45)}
+.card{background:var(--surface);border:0;border-radius:22px;padding:16px 18px}
+.card h2{color:var(--text);text-transform:none;letter-spacing:0;font-size:16px;font-weight:700}
+.chip{border-radius:999px}
+.chip.active{background:#6d2b4b;color:#ffd9e6;border-color:#6d2b4b}
+button,input,select,textarea{font-family:inherit}
+input[type=text],input[type=search],select,textarea{background:var(--surface-2);color:var(--text);border-color:var(--line);border-radius:14px}
+.bottom-nav{background:var(--bar);border-top:0;border-top-left-radius:22px;border-top-right-radius:22px;overflow-x:auto;scrollbar-width:none;box-shadow:0 -2px 10px rgba(0,0,0,.25)}
+.bottom-nav::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;min-width:74px;color:#a08d94;border-top-color:transparent}
+.tab-btn.active{color:#ffd9e6;border-top-color:#ffb0cf;background:linear-gradient(rgba(109,43,75,.55),transparent)}
+.toast{background:#41353a;color:#f1dee4;border-radius:14px}
