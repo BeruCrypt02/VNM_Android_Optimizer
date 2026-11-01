@@ -3,7 +3,6 @@ package com.mkvenompro.optimizer.core
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.TimeUnit
 import java.io.File
 
