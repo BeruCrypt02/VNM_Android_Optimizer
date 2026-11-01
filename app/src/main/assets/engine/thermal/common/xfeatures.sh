@@ -5,7 +5,7 @@
 # and restored when the switch goes off or the module is removed.
 # This file is sourced by common/functions.sh; it uses its helpers.
 
-HC_XLISTS=${MODDIR:-/data/adb/modules/mkvp_thermal}/common
+HC_XLISTS=${MODDIR:-/data/adb/mkvp/engine/thermal}/common
 
 # apply_list <file> : write every "path|value" line, counted by wn()
 apply_list() {

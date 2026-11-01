@@ -9,11 +9,15 @@ Root-powered Android app that combines:
 ## How it works
 
 The UI runs in a WebView and talks to root through a native `window.ksu` bridge (`exec`, `listPackages`, `getPackagesInfo`).
-Boot-time work (sysfs/props, SELinux rules, overlays, FOD/brightness/OTG daemons) cannot be done by a normal app, so the APK carries two small modules (`mkvp_thermal`, `mkvp_tools`) under `app/src/main/assets/engine`. On first launch the app offers to install them into `/data/adb/modules`; reboot once afterwards.
+Boot-time work (sysfs/props, SELinux rules, overlays, FOD/brightness/OTG daemons) cannot be done by a normal app process, so the APK carries an **engine** (`mkvp_thermal`, `mkvp_tools`) under `app/src/main/assets/engine`. The app itself (it already has root) writes the engine to `/data/adb/mkvp/engine` on first launch - **no Magisk / KernelSU / APatch module is created**; reboot once afterwards.
+
+Boot flow without the module loader: `engine/boot.sh` is started by `/data/adb/post-fs-data.d/mkvp_engine.sh` and `/data/adb/service.d/mkvp_engine.sh` (the standard script folders of Magisk, KernelSU and APatch). If those folders are not executed, the app's own `BootReceiver` (BOOT_COMPLETED) runs `boot.sh late` as a fallback. `boot.sh` replaces what the module loader did: it applies `sepolicy.rule`, loads `system.prop`, and bind/overlay-mounts the `system/` trees (FOD overlay APK, GMS Doze sysconfig). Every stage runs once per boot.
+
+Old installs (`/data/adb/modules/mkvp_thermal`, `mkvp_tools`) are migrated automatically: settings and the removed-apps list are copied, the old module's uninstaller is neutralised and the module is flagged for removal.
 
 Access backend: the app asks for **root** first; if there is none it falls back to **Shizuku** (shell mode, root-only features such as the engine and sysfs writes are unavailable). ADB/Fastboot host mode works with neither.
 
-Requirements: Android 8+ (engine features need Android 11+), root with module support (Magisk, KernelSU or APatch), arm64 for the brightness/FOD helpers.
+Requirements: Android 8+ (engine features need Android 11+), root (Magisk, KernelSU or APatch; the `post-fs-data.d` / `service.d` folders give the earliest boot, otherwise the app starts the engine after boot), arm64 for the brightness/FOD helpers.
 
 ## Build
 
@@ -25,6 +29,6 @@ Local build (Gradle 8.7+, JDK 17, Android SDK 34): `gradle assembleRelease`.
 
 ## Uninstall
 
-Remove `mkvp_thermal` and `mkvp_tools` in your root manager (their uninstall scripts restore removed apps and ROM changes), then uninstall the app.
+Modules tab > Engine > **Remove engine** (restores removed apps and ROM changes, deletes `/data/adb/mkvp` and the boot hooks), then uninstall the app. Manual: `su -c 'sh /data/adb/mkvp/engine/engine_ctl.sh uninstall'`.
 
 See `NOTICE.md` for credits and third-party licenses.

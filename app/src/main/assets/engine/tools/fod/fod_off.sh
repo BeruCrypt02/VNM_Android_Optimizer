@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# Matikan mode FOD di layar sentuh:  su -c "sh /data/adb/modules/mkvp_tools/fod/fod_off.sh"
+# Matikan mode FOD di layar sentuh:  su -c "sh /data/adb/mkvp/engine/tools/fod/fod_off.sh"
 MODDIR=${0%/*}
 chmod 755 "$MODDIR/bin/fodctl"
 "$MODDIR/bin/fodctl" 10 0

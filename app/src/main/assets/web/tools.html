@@ -7,6 +7,7 @@
 <title>MkVenomPro Tools</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="compact.css">
 </head>
 <body>
 <header class="topbar">
@@ -207,6 +208,15 @@
 
   <!-- ===================== MODULES ===================== -->
   <section id="tab-mods" class="tab">
+    <div class="card" id="engCard">
+      <h2>Engine</h2>
+      <p id="engDesc">Boot-time add-on of this app (no root-manager module). Stored in /data/adb/mkvp.</p>
+      <div class="otg-state">
+        <div><span class="k">Status</span><b id="engState">…</b></div>
+        <div><span class="k">Boot hooks</span><b id="engHooks">…</b></div>
+      </div>
+      <button class="secondary-btn" id="engUninstall" style="margin-top:10px">Remove engine</button>
+    </div>
     <div class="card">
       <h2 data-i18n="brTitle">Brightness fix</h2>
       <p data-i18n="brDesc">Whole-slider brightness remap up to the panel maximum, with thermal derate. Switching applies immediately and is remembered after reboot.</p>

@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# Jalankan SETELAH mencoba enroll:  su -c "sh /data/adb/modules/mkvp_tools/fod/collect.sh"
+# Jalankan SETELAH mencoba enroll:  su -c "sh /data/adb/mkvp/engine/tools/fod/collect.sh"
 OUT=/sdcard/fod_collect.txt
 {
   echo "== getenforce =="; getenforce

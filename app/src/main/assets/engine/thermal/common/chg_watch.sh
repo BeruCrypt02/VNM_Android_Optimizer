@@ -7,7 +7,7 @@
 # Usage: chg_watch.sh <night_charging node>
 NC=$1
 HC_DATA=/data/adb/mkvp_thermal
-MODDIR=/data/adb/modules/mkvp_thermal
+MODDIR=/data/adb/mkvp/engine/thermal
 PIDF=$HC_DATA/chg_watch.pid
 STATE=$HC_DATA/chg_watch.state
 

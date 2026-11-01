@@ -7,7 +7,7 @@
 # wakelock) and checks a timestamp; the actual clean runs once every 24 h at lowest priority.
 export PATH=/system/bin:/system/xbin:/vendor/bin:/data/adb/ksu/bin:/data/adb/ap/bin:/data/adb/magisk:"$PATH"
 HC_DATA=/data/adb/mkvp_thermal
-MODDIR=/data/adb/modules/mkvp_thermal
+MODDIR=/data/adb/mkvp/engine/thermal
 LAST=$HC_DATA/cache_clean.last     # cleared_kb|apps_cleaned|epoch|apps_scanned
 CHECK=$HC_DATA/cache_clean.check   # epoch of the last daily check
 PIDF=$HC_DATA/cache_keeper.pid

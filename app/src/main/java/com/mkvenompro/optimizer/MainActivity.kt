@@ -34,7 +34,7 @@ class MainActivity : Activity() {
 
     private val host = "appassets.androidplatform.net"
     private val dynPrefix = "/assets/web/dyn/"
-    private val dynRoot = "/data/adb/modules/mkvp_tools/webroot/"
+    private val dynRoot = "${EngineInstaller.ENGINE_DIR}/tools/webroot/"
     private val safeRel = Regex("^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,8 +222,9 @@ class MainActivity : Activity() {
                         AlertDialog.Builder(this)
                             .setTitle("Install engine")
                             .setMessage(
-                                "The boot-time parts (thermal tweaks, FOD, brightness, OTG, overlays) must be installed " +
-                                    "as two small modules in /data/adb/modules. Install them now? A reboot is needed afterwards."
+                                "The boot-time parts (thermal tweaks, FOD, brightness, OTG, overlays) are installed by " +
+                                    "this app itself, using its root access, into /data/adb/mkvp. No Magisk / KernelSU / APatch " +
+                                    "module is created. Install now? A reboot is needed afterwards."
                             )
                             .setPositiveButton("Install") { _, _ -> runInstall() }
                             .setNegativeButton("Later", null)

@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # Shared paths + logging helpers for System Perf
 
-MODDIR=/data/adb/modules/mkvp_tools
+MODDIR=/data/adb/mkvp/engine/tools
 CONF="$MODDIR/systemperf.conf"
 
 # Log goes to INTERNAL STORAGE (not /data/adb) so the user can find it

@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # Restore every package the debloater removed, then undo the OTG + brightness overrides
-MODDIR=/data/adb/modules/mkvp_tools
+MODDIR=/data/adb/mkvp/engine/tools
 LIST="$MODDIR/removed_packages.txt"
 if [ -f "$LIST" ]; then
   sort -u "$LIST" | while read -r pkg; do

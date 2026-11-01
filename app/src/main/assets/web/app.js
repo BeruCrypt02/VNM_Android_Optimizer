@@ -2,7 +2,7 @@
 // Uses the standard KernelSU/APatch/Magisk WebUI bridge: window.ksu.exec()
 // No Zygisk required — every action here is a plain root shell command.
 
-const MODDIR = "/data/adb/modules/mkvp_tools";
+const MODDIR = "/data/adb/mkvp/engine/tools";
 let cbCounter = 0;
 
 // ---------------- i18n ----------------
@@ -2044,6 +2044,33 @@ document.querySelectorAll(".tab-btn").forEach((btn) => btn.addEventListener("cli
 } catch (e) { toast("Error: " + (e && e.message)); } }));
 window.addEventListener("error", (e) => { try { toast("Error: " + (e.message || e)); } catch (_) {} });
 window.addEventListener("unhandledrejection", (e) => { try { toast("Error: " + ((e.reason && e.reason.message) || e.reason)); } catch (_) {} });
+
+
+// ---- engine card (Modules tab): status + remove ----
+async function engLoad() {
+  const st = document.getElementById("engState"), hk = document.getElementById("engHooks");
+  if (!st) return;
+  const r = await execT("sh /data/adb/mkvp/engine/engine_ctl.sh status 2>/dev/null", 8000);
+  const m = {};
+  (r.stdout || "").split("\n").forEach((l) => { const i = l.indexOf("="); if (i > 0) m[l.slice(0, i).trim()] = l.slice(i + 1).trim(); });
+  if (m.installed !== "1") { st.textContent = TT("Not installed", "غير مثبت"); hk.textContent = "–"; return; }
+  st.textContent = (m.enabled === "0" ? TT("Disabled", "متوقف") : TT("Active", "شغال")) + (m.version ? " · v" + m.version : "");
+  hk.textContent = (m.hook_postfs === "1" && m.hook_service === "1") ? TT("OK", "تمام") : TT("App fallback", "احتياطي من التطبيق");
+}
+(function () {
+  const b = document.getElementById("engUninstall");
+  if (!b) return;
+  b.textContent = TT("Remove engine", "إزالة الـ engine");
+  b.addEventListener("click", async () => {
+    if (!window.confirm(TT(
+      "Remove the engine? Removed apps are restored and ROM changes are given back. Your app settings stay in the app.",
+      "إزالة الـ engine؟ هترجع التطبيقات المحذوفة وتتلغي تعديلات الروم."))) return;
+    const r = await execT("sh /data/adb/mkvp/engine/engine_ctl.sh uninstall 2>&1", 120000);
+    toast((r.stdout || r.stderr || "done").trim().split("\n").pop());
+    engLoad();
+  });
+})();
+document.querySelectorAll(".tab-btn").forEach((btn) => btn.addEventListener("click", () => { try { if (btn.dataset.tab === "mods") engLoad(); } catch (e) { } }));
 
 // ---------------- init ----------------
 applyLang();

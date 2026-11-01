@@ -1109,4 +1109,4 @@ f_anim_scale() {
 
 # ================================================================ MORE tab
 # Extra features (safe ones default ON). Definitions live in common/xfeatures.sh.
-. "${MODDIR:-/data/adb/modules/mkvp_thermal}/common/xfeatures.sh"
+. "${MODDIR:-/data/adb/mkvp/engine/thermal}/common/xfeatures.sh"
