@@ -27,19 +27,22 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools,platforms;android-35,build-tools;35.0.0'
+          packages: |
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Build debug APK
+      - name: Build APK
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MkVenomPro-Android-Optimizer-debug-apk
+          name: MkVenomPro-Android-Optimizer
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
