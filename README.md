@@ -1,39 +1,36 @@
 # MkVenomPro Android Optimizer
 
-Android application source built with Kotlin, Jetpack Compose and Material 3.
+An independent Android device diagnostics and optimization-control project built with Kotlin and Jetpack Compose.
 
-## Included in this source package
+## Current build
 
-- Existing device, battery, installed-app, performance-interface and USB-host inspection screens retained.
-- Persisted appearance setting: System / Dark / Light. The saved selection is loaded before the first Compose frame to avoid a theme flash at startup.
-- App icon rendering through Drawable-to-Bitmap conversion.
-- Original source archives for the three supplied legacy modules, plus extracted copies for code review, under `legacy-modules/`.
-- GitHub Actions workflow using Java 17, Android SDK Platform 35 and Gradle 8.9.
+- Material 3 interface with a floating capsule navigation bar.
+- Dark, light, and system appearance modes persisted before the first Compose frame.
+- Read-only device, kernel-interface, thermal-zone, I/O scheduler, root-availability, and battery inspection.
+- Installed application inventory and launch.
+- ADB/Fastboot command reference catalog and local partition-name notes.
+- USB Host capability detection (not an ADB-over-USB implementation).
 
-## Important implementation status
+## Architecture and truthfulness
 
-This package is a preservation and UI-foundation update, **not a claim that every legacy feature has already been ported into the Android app**.
+The phone running the app is intended to be the ADB Host/controller; a separately connected Android phone/tablet is the Target. USB ADB, Wireless ADB, and Fastboot require distinct transport implementations. The current source does not yet contain those transports, package deployment, remote package control, interactive shell, file transfer, Logcat, or screenshot capture. See [TOOLKIT_IMPLEMENTATION_STATUS.md](TOOLKIT_IMPLEMENTATION_STATUS.md) and [FEATURE_AUDIT.md](FEATURE_AUDIT.md).
 
-The current Android app still has inspection/reference functionality in several areas. A real phone-as-host controller (USB ADB transport, wireless pairing/connection, interactive shell, remote app deployment, file transfer and remote Logcat) requires a dedicated ADB transport implementation and device-side permission/connection handling. Those operations must not be represented by non-working buttons. The original module scripts are preserved as source material and are not automatically executed by the app.
-
-Before enabling any legacy system-tuning action, it must be individually ported, checked for device compatibility, given clear permission requirements, and provided with backup/restore and failure handling. Unsupported or unavailable controls should remain disabled with an explanation rather than pretending to work.
+The supplied feature references were reviewed for behavior and feature families, then excluded from the public source. No reference module source, scripts, archives, WebUI bundles, or artwork are redistributed here. All future implementations must be independent and capability-gated.
 
 ## Build
 
-- JDK 17
-- Android SDK Platform 35
-- Android Build Tools 35.0.0
-- Gradle 8.9
+Open in Android Studio with JDK 17 and Android SDK Platform 35, then run `:app:assembleDebug`.
 
-Run:
+## Requirements
 
-```bash
-gradle --no-daemon :app:assembleDebug
-```
+- Android 8.0 (API 26) or newer.
+- Android Studio / Gradle environment with Android Gradle Plugin and Kotlin Compose plugin compatible with the project root build configuration.
 
-The debug APK is generated at:
-`app/build/outputs/apk/debug/app-debug.apk`
+## Safety
 
-## Package
+This source currently performs diagnostics and read-only discovery. It does not alter thermal protections, SELinux policy, charging behavior, kernel tuning values, or installed packages.
 
-`com.mkvenompro.optimizer`
+
+## Requested feature scope
+
+Only OTG/USB fixes and brightness fixes/services are excluded. Fast Charge Control, SELinux mode management, Game Spoofer, ReZygisk-related functionality, MiTool-related tools, FOD diagnostics/fixes, and database maintenance remain in scope. Their presence in the scope does not mean they are already implemented; see `FEATURE_AUDIT.md` for current status.

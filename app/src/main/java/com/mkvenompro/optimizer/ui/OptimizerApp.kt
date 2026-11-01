@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,20 +37,46 @@ fun OptimizerApp(themeMode: ThemeMode, onThemeModeChange: (ThemeMode) -> Unit) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                listOf(Page.HOME, Page.PERFORMANCE, Page.BATTERY, Page.APPS, Page.TOOLS, Page.DEVICE).forEach { item ->
-                    NavigationBarItem(
-                        selected = page == item, onClick = { page = item },
-                        icon = { Icon(when(item) {
-                            Page.HOME -> Icons.Default.Home
-                            Page.PERFORMANCE -> Icons.Default.Speed
-                            Page.BATTERY -> Icons.Default.BatteryFull
-                            Page.APPS -> Icons.Default.Apps
-                            Page.TOOLS -> Icons.Default.Build
-                            Page.DEVICE -> Icons.Default.PhoneAndroid
-                        }, contentDescription = item.label) },
-                        label = { Text(item.label) }
-                    )
+            // Floating capsule navigation: independent layout, no copied artwork/assets.
+            Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp), contentAlignment = Alignment.Center) {
+                Surface(
+                    shape = RoundedCornerShape(28.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.97f),
+                    tonalElevation = 8.dp,
+                    shadowElevation = 10.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 5.dp, vertical = 5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        listOf(Page.HOME, Page.PERFORMANCE, Page.BATTERY, Page.APPS, Page.TOOLS, Page.DEVICE).forEach { item ->
+                            val selected = page == item
+                            val icon = when(item) {
+                                Page.HOME -> Icons.Default.Home
+                                Page.PERFORMANCE -> Icons.Default.Speed
+                                Page.BATTERY -> Icons.Default.BatteryFull
+                                Page.APPS -> Icons.Default.Apps
+                                Page.TOOLS -> Icons.Default.Build
+                                Page.DEVICE -> Icons.Default.PhoneAndroid
+                            }
+                            Surface(
+                                onClick = { page = item },
+                                shape = RoundedCornerShape(22.dp),
+                                color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                            ) {
+                                Row(
+                                    Modifier.padding(horizontal = if (selected) 13.dp else 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(icon, contentDescription = item.label, tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
+                                    if (selected) Text(item.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -55,8 +85,8 @@ fun OptimizerApp(themeMode: ThemeMode, onThemeModeChange: (ThemeMode) -> Unit) {
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("MKVENOMPRO", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                    Text("ANDROID OPTIMIZER", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                    Text("MKVENOMPRO  /  DEVICE LAB", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    Text("Android Optimizer", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
                 }
                 Box {
                     IconButton(onClick = { themeMenuExpanded = true }) {
@@ -106,15 +136,20 @@ private fun Panel(title: String, value: String, subtitle: String = "") {
 @Composable
 private fun HomePage(onNavigate: (Page) -> Unit) {
     val context = LocalContext.current
-    val device = remember { DeviceInspector.inspect() }
-    val battery = remember { BatteryInspector.read(context) }
+    var device by remember { mutableStateOf<DeviceSnapshot?>(null) }
+    var battery by remember { mutableStateOf<BatterySnapshot?>(null) }
+    LaunchedEffect(Unit) {
+        val result = withContext(Dispatchers.IO) { DeviceInspector.inspect() to BatteryInspector.read(context) }
+        device = result.first
+        battery = result.second
+    }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 20.dp)) {
-        item { Panel("DEVICE", "${device.manufacturer} ${device.model}", "Android ${device.android} · ${device.chipset}") }
+        item { Panel("DEVICE", device?.let { "${it.manufacturer} ${it.model}" } ?: "Reading device…", device?.let { "Android ${it.android} · ${it.chipset}" } ?: "Inspecting hardware interfaces off the UI thread") }
         item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Box(Modifier.weight(1f)) { Panel("BATTERY", "${battery.percent}%", if (battery.charging) "Charging" else "Not charging") }
-            Box(Modifier.weight(1f)) { Panel("ROOT", if (device.rootAvailable) "Detected" else "Not detected", "Detection only") }
+            Box(Modifier.weight(1f)) { Panel("BATTERY", battery?.let { "${it.percent}%" } ?: "—", battery?.let { if (it.charging) "Charging" else "Not charging" } ?: "Reading status") }
+            Box(Modifier.weight(1f)) { Panel("ROOT", device?.let { if (it.rootAvailable) "Detected" else "Not detected" } ?: "Checking", "Detection only") }
         } }
-        item { Panel("SYSTEM STATUS", "${device.cpuPolicies} CPU policies", "${device.thermalZones} thermal zones · GPU ${if(device.gpuInterface) "available" else "not exposed"}") }
+        item { Panel("SYSTEM STATUS", device?.let { "${it.cpuPolicies} CPU policies" } ?: "Checking interfaces", device?.let { "${it.thermalZones} thermal zones · GPU ${if(it.gpuInterface) "available" else "not exposed"}" } ?: "Availability depends on the device") }
         item { Text("QUICK ACCESS", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }
         items(listOf(Page.PERFORMANCE, Page.BATTERY, Page.APPS, Page.TOOLS, Page.DEVICE)) { target ->
             Card(Modifier.fillMaxWidth().clickable { onNavigate(target) }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
@@ -129,25 +164,27 @@ private fun HomePage(onNavigate: (Page) -> Unit) {
 
 @Composable
 private fun PerformancePage() {
-    val d = remember { DeviceInspector.inspect() }
+    var d by remember { mutableStateOf<DeviceSnapshot?>(null) }
+    LaunchedEffect(Unit) { d = withContext(Dispatchers.IO) { DeviceInspector.inspect() } }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item { Panel("CPU POLICIES", d.cpuPolicies.toString(), "Read-only discovery under cpufreq") }
-        item { Panel("GPU INTERFACE", if(d.gpuInterface) "Detected" else "Not exposed", "KGSL / devfreq visibility") }
-        item { Panel("THERMAL ZONES", d.thermalZones.toString(), "Thermal protections are never modified") }
+        item { Panel("CPU POLICIES", d?.cpuPolicies?.toString() ?: "Reading…", "Read-only discovery under cpufreq") }
+        item { Panel("GPU INTERFACE", d?.let { if(it.gpuInterface) "Detected" else "Not exposed" } ?: "Checking…", "KGSL / devfreq visibility") }
+        item { Panel("THERMAL ZONES", d?.thermalZones?.toString() ?: "Reading…", "Thermal protections are never modified") }
         item { Text("I/O SCHEDULERS", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }
-        if (d.ioSchedulers.isEmpty()) item { Text("No readable scheduler nodes were exposed.") }
-        items(d.ioSchedulers) { Text(it, Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)).padding(14.dp)) }
+        if (d != null && d!!.ioSchedulers.isEmpty()) item { Text("No readable scheduler nodes were exposed.") }
+        items(d?.ioSchedulers ?: emptyList()) { Text(it, Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)).padding(14.dp)) }
     }
 }
 
 @Composable
 private fun BatteryPage() {
     val context = LocalContext.current
-    val b = remember { BatteryInspector.read(context) }
+    var b by remember { mutableStateOf<BatterySnapshot?>(null) }
+    LaunchedEffect(Unit) { b = withContext(Dispatchers.IO) { BatteryInspector.read(context) } }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Panel("BATTERY LEVEL", "${b.percent}%", if(b.charging) "Charging" else "Not charging")
-        Panel("HEALTH", b.health, "Reported by Android battery service")
-        Panel("POWER", if(b.plugged) "External power connected" else "On battery", "Status snapshot")
+        Panel("BATTERY LEVEL", b?.let { "${it.percent}%" } ?: "Reading…", b?.let { if(it.charging) "Charging" else "Not charging" } ?: "Battery service snapshot")
+        Panel("HEALTH", b?.health ?: "Checking…", "Reported by Android battery service")
+        Panel("POWER", b?.let { if(it.plugged) "External power connected" else "On battery" } ?: "Checking…", "Status snapshot")
         Text("Battery health reporting differs by device manufacturer. This screen does not estimate battery capacity or promise cycle-life predictions.", color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -160,7 +197,7 @@ private fun AppsPage() {
     LaunchedEffect(Unit) { apps = loadInstalledApps(context) }
     Column {
         OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), label = { Text("Search apps or package names") }, singleLine = true)
-        Text("${apps.size} installed apps · view and launch only", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+        Text("${apps.size} installed apps · inventory and launch", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
         LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             items(apps.filter { it.label.contains(query, true) || it.packageName.contains(query, true) }) { app ->
                 Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)).clickable {
@@ -243,17 +280,22 @@ private fun PartitionNotes() {
 @Composable
 private fun DevicePage() {
     val context = LocalContext.current
-    val d = remember { DeviceInspector.inspect() }
-    val usb = remember { readUsbHostStatus(context) }
+    var d by remember { mutableStateOf<DeviceSnapshot?>(null) }
+    var usb by remember { mutableStateOf<UsbHostStatus?>(null) }
+    LaunchedEffect(Unit) {
+        val result = withContext(Dispatchers.IO) { DeviceInspector.inspect() to readUsbHostStatus(context) }
+        d = result.first
+        usb = result.second
+    }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item { Panel("MANUFACTURER / MODEL", "${d.manufacturer} ${d.model}") }
-        item { Panel("ANDROID", d.android) }
-        item { Panel("CHIPSET / PLATFORM", d.chipset) }
-        item { Panel("KERNEL", d.kernel) }
-        item { Panel("USB HOST", if(usb.supported) "Supported" else "Not supported", "${usb.connectedDevices} USB device(s) currently visible") }
-        item { Panel("ROOT", if(d.rootAvailable) "su binary detected" else "Not detected", "No root commands are run") }
+        item { Panel("MANUFACTURER / MODEL", d?.let { "${it.manufacturer} ${it.model}" } ?: "Reading…") }
+        item { Panel("ANDROID", d?.android ?: "Reading…") }
+        item { Panel("CHIPSET / PLATFORM", d?.chipset ?: "Reading…") }
+        item { Panel("KERNEL", d?.kernel ?: "Reading…") }
+        item { Panel("USB HOST", usb?.let { if(it.supported) "Supported" else "Not supported" } ?: "Checking…", usb?.let { "${it.connectedDevices} USB device(s) currently visible" } ?: "USB host capability only; no ADB transport") }
+        item { Panel("ROOT", d?.let { if(it.rootAvailable) "su binary detected" else "Not detected" } ?: "Checking…", "No root commands are run") }
         item { Text("DIAGNOSTIC NOTES", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }
-        items(d.notes) { Text("• $it") }
+        items(d?.notes ?: listOf("Collecting device diagnostics…")) { Text("• $it") }
     }
 }
 
