@@ -11,7 +11,7 @@ import java.io.File
  */
 object EngineInstaller {
     /** Bump when anything under assets/engine changes. */
-    const val VERSION = 2
+    const val VERSION = 3
     private const val VERSION_FILE = "/data/adb/mkvp_engine_version"
 
     fun isCurrent(): Boolean {

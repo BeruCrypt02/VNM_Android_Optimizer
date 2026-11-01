@@ -4,6 +4,12 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import org.json.JSONObject
+import android.util.LruCache
+import java.io.ByteArrayOutputStream
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.ConsoleMessage
@@ -56,6 +62,7 @@ class MainActivity : Activity() {
 
         web.addJavascriptInterface(KsuBridge(this, web), "ksu")
         web.addJavascriptInterface(HostBridge(this, web), "mkvp")
+        web.addJavascriptInterface(UiBridge(this), "mkvpui")
 
         web.webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -124,7 +131,63 @@ class MainActivity : Activity() {
     }
 
     /** Files that the root scripts write at runtime (app names, icons, screenshots, status). */
+    private val iconCache = LruCache<String, ByteArray>(400)
+    private val pkgRe = Regex("^[A-Za-z0-9._]+$")
+    private var labelsAt = 0L
+    private var labelsJson = "{}"
+
+    private fun nativeIcon(pkg: String): ByteArray? {
+        if (!pkgRe.matches(pkg)) return null
+        iconCache.get(pkg)?.let { return it }
+        return try {
+            val pm = packageManager
+            // 0x2000 = MATCH_UNINSTALLED_PACKAGES: also apps already removed for this user
+            val ai = pm.getApplicationInfo(pkg, 0x00002000)
+            val d = ai.loadIcon(pm)
+            val size = 112
+            val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val c = Canvas(bmp)
+            d.setBounds(0, 0, size, size)
+            d.draw(c)
+            val out = ByteArrayOutputStream()
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+            bmp.recycle()
+            val b = out.toByteArray()
+            iconCache.put(pkg, b)
+            b
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @Synchronized
+    private fun nativeLabels(): ByteArray {
+        val now = System.currentTimeMillis()
+        if (now - labelsAt > 30000) {
+            val pm = packageManager
+            val o = JSONObject()
+            try {
+                for (ai in pm.getInstalledApplications(0x00002000)) {
+                    try { o.put(ai.packageName, ai.loadLabel(pm).toString()) } catch (e: Exception) { }
+                }
+            } catch (e: Exception) { }
+            labelsJson = o.toString()
+            labelsAt = now
+        }
+        return labelsJson.toByteArray(Charsets.UTF_8)
+    }
+
     private fun serveDynamic(rel: String): WebResourceResponse {
+        val noStore = mapOf("Cache-Control" to "no-store")
+        if (rel == "app_labels.json") {
+            return WebResourceResponse("application/json", null, 200, "OK", noStore, ByteArrayInputStream(nativeLabels()))
+        }
+        if (rel.startsWith("icons/") && rel.endsWith(".png")) {
+            val b = nativeIcon(rel.substring(6, rel.length - 4))
+            if (b != null) {
+                return WebResourceResponse("image/png", null, 200, "OK", mapOf("Cache-Control" to "max-age=600"), ByteArrayInputStream(b))
+            }
+        }
         val bytes = if (safeRel.matches(rel) && !rel.contains("..")) Shell.readBytes(dynRoot + rel) else null
         val mime = when {
             rel.endsWith(".json") -> "application/json"

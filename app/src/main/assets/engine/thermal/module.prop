@@ -1,6 +1,6 @@
 id=mkvp_thermal
 name=MkVenomPro Thermal Engine
-version=v1.1.0
-versionCode=110
+version=v1.2.0
+versionCode=120
 author=Mkvenompro
 description=Heat and battery fix for Android - Device Qualcomm/MediaTek (one-shot at boot, only tiny opt-in keepers). Configure in WebUI, then reboot.

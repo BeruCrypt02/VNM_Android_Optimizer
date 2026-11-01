@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html data-nav="adb" lang="en">
 <head>
+<script src="theme.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>MkVenomPro ADB &amp; Fastboot</title>
@@ -13,20 +14,20 @@
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .row>*{min-width:0}
   select,input[type=text]{width:100%;padding:11px 12px;font-size:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--text)}
-  .b{border:0;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:600;background:#6d2b4b;color:#ffd9e6}
-  .b.fill{background:#ffb0cf;color:#5c1134}
-  .b.warn{background:#5e1a17;color:#ffb4ab}
+  .b{border:0;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:600;background:var(--red-dark);color:var(--onpricont)}
+  .b.fill{background:var(--red);color:var(--onred)}
+  .b.warn{background:var(--badc);color:var(--bad)}
   .b:disabled{opacity:.4}
   .b:active{filter:brightness(1.2)}
   .grid{display:flex;flex-wrap:wrap;gap:6px}
   details{background:var(--surface);border-radius:22px;padding:4px 14px;margin-bottom:10px}
   summary{font-weight:700;font-size:15px;padding:12px 0;cursor:pointer}
   details .grid{padding-bottom:12px}
-  #out{white-space:pre-wrap;word-break:break-all;font:12px/1.5 ui-monospace,Menlo,monospace;max-height:42vh;overflow:auto;margin:0;color:#e9d3db}
+  #out{white-space:pre-wrap;word-break:break-all;font:12px/1.5 ui-monospace,Menlo,monospace;max-height:42vh;overflow:auto;margin:0;color:var(--text)}
   .st{font-size:13px;color:var(--muted);margin-top:8px}
-  .st.ok{color:#8fd6a4}.st.bad{color:#ffb4ab}
+  .st.ok{color:var(--ok)}.st.bad{color:var(--bad)}
   .bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin-top:8px}
-  .bar i{display:block;height:100%;width:0;background:#ffb0cf;transition:width .2s}
+  .bar i{display:block;height:100%;width:0;background:var(--red);transition:width .2s}
   h3{margin:0 0 8px;font-size:15px}
 </style>
 </head>

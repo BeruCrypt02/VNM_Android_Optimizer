@@ -1,0 +1,12 @@
+/* extra polish for the Heat pages (colours still come from theme.js) */
+.page.active{animation:pg .24s ease}
+@keyframes pg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.item.press{transition:background .15s,transform .12s}
+.item.press:active{transform:scale(.985);background:var(--surf2)}
+.btn{transition:transform .12s,filter .12s}.btn:active{transform:scale(.97);filter:brightness(1.1)}
+.topbar{background:var(--bar);box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.topbar h1{background:linear-gradient(90deg,var(--pri),var(--on));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hchip{background:var(--pricont);color:var(--onpricont)}
+.navin{box-shadow:0 6px 22px rgba(0,0,0,.32)}
+.tab{transition:flex .2s,background .2s,color .2s}
+.tsb-btn{margin-left:8px}

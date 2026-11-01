@@ -343,67 +343,100 @@ function curatedFor(pkg) {
   return curated.find((c) => c.pkg === pkg);
 }
 
+const NATIVE_META = !!window.mkvpui;     // icons + names come straight from the system in the app
+const selected = new Set();
+const TT = (en, ar) => (LANG === "ar" ? ar : en);
+const escHtml = (x) => String(x).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function resetSelection() {
+  selected.clear();
+  const have = new Set(allApps.map((a) => a.pkg));
+  curated.forEach((c) => {
+    if (c.default && !PROTECTED.includes(c.pkg) && have.has(c.pkg)) selected.add(c.pkg);
+  });
+}
+
+function updateSelBar() {
+  const n = selected.size;
+  const recAvail = allApps.filter((a) => curatedFor(a.pkg) && !PROTECTED.includes(a.pkg)).length;
+  document.getElementById("selCount").textContent = TT(`${n} selected`, `${n} محدد`);
+  document.getElementById("selSub").textContent = n ? "" : TT("Tap apps to select", "اضغط على التطبيقات لتحديدها");
+  document.getElementById("chipSel").textContent = TT("Selected", "المحدد") + (n ? ` (${n})` : "");
+  document.getElementById("dbStat").innerHTML =
+    `<span><b>${allApps.length}</b> ${TT("apps", "تطبيق")}</span>` +
+    (curatedActive ? `<span><b>${recAvail}</b> ${TT("recommended", "موصى")}</span>` : "");
+  document.getElementById("runDebloat").disabled = n === 0;
+}
+
+function rowHtml(a) {
+  const rec = curatedFor(a.pkg);
+  const locked = PROTECTED.includes(a.pkg);
+  const cat = rec ? (LANG === "ar" ? rec.cat_ar : rec.cat_en) : "";
+  const desc = rec ? (LANG === "ar" ? rec.desc_ar : rec.desc_en) : "";
+  return `
+    <label class="pkg-item ${locked ? "locked" : ""}">
+      ${iconHtml(a.pkg)}
+      <div class="pkg-meta">
+        <div class="pkg-tags">
+          ${locked ? `<span class="pkg-tag">🔒 ${t("locked")}</span>` : ""}
+          ${rec ? `<span class="pkg-tag rec">${escHtml(cat)}</span>` : ""}
+          <span class="pkg-tag ${a.source === "system" ? "sys" : "usr"}">${a.source === "system" ? t("filterSystem") : t("filterUser")}</span>
+        </div>
+        <span class="app-label">${escHtml(labelFor(a.pkg))}</span>
+        <span class="pkg-name">${a.pkg}</span>
+        ${desc ? `<span class="pkg-desc">${escHtml(desc)}</span>` : ""}
+      </div>
+      <input type="checkbox" data-pkg="${a.pkg}" ${selected.has(a.pkg) ? "checked" : ""} ${locked ? "disabled" : ""}>
+    </label>`;
+}
+
 function renderPkgList() {
   const listEl = document.getElementById("pkgList");
   const loadingEl = document.getElementById("pkgLoading");
-  const introEl = document.querySelector("#tab-debloat .card");
-  const toggleRow = document.querySelector("#tab-debloat .card.row");
-  const runBtn = document.getElementById("runDebloat");
-
-  if (!curatedActive && allApps.length && curated.length === 0 && window.__hpkAlreadyRan) {
-    introEl.innerHTML = `<p>${t("already")}</p>`;
-  }
-
   const q = currentSearch.toLowerCase();
   const filtered = allApps.filter((a) => {
     if (q && !a.pkg.toLowerCase().includes(q) && !labelFor(a.pkg).toLowerCase().includes(q)) return false;
-    const rec = curatedFor(a.pkg);
-    if (currentFilter === "recommended") return !!rec;
+    if (currentFilter === "recommended") return !!curatedFor(a.pkg);
     if (currentFilter === "system") return a.source === "system";
     if (currentFilter === "user") return a.source === "user";
+    if (currentFilter === "selected") return selected.has(a.pkg);
     return true;
   });
-
-  listEl.innerHTML = filtered.map((a) => {
-    const rec = curatedFor(a.pkg);
-    const locked = PROTECTED.includes(a.pkg);
-    const checked = rec && rec.default && !locked ? "checked" : "";
-    const cat = rec ? (LANG === "ar" ? rec.cat_ar : rec.cat_en) : "";
-    const desc = rec ? (LANG === "ar" ? rec.desc_ar : rec.desc_en) : "";
-    return `
-      <label class="pkg-item ${locked ? "locked" : ""}">
-        <input type="checkbox" data-pkg="${a.pkg}" ${checked} ${locked ? "disabled" : ""}>
-        ${iconHtml(a.pkg)}
-        <div class="pkg-meta">
-          <div class="pkg-tags">
-            ${locked ? `<span class="pkg-tag">🔒 ${t("locked")}</span>` : ""}
-            ${rec ? `<span class="pkg-tag rec">${cat}</span>` : ""}
-            <span class="pkg-tag ${a.source === "system" ? "sys" : "usr"}">${a.source === "system" ? t("filterSystem") : t("filterUser")}</span>
-          </div>
-          <span class="app-label">${labelFor(a.pkg)}</span>
-          <span class="pkg-name">${a.pkg}</span>
-          ${desc ? `<span class="pkg-desc">${desc}</span>` : ""}
-        </div>
-      </label>
-    `;
-  }).join("");
-
+  filtered.sort((x, y) => {
+    const rx = curatedFor(x.pkg) ? 1 : 0, ry = curatedFor(y.pkg) ? 1 : 0;
+    if (rx !== ry) return ry - rx;
+    return labelFor(x.pkg).localeCompare(labelFor(y.pkg));
+  });
+  listEl.innerHTML = filtered.length
+    ? filtered.map(rowHtml).join("")
+    : `<div class="card sub" style="text-align:center">${TT("No apps match", "مفيش تطبيقات مطابقة")}</div>`;
   loadingEl.style.display = "none";
   listEl.style.display = "block";
+  updateSelBar();
 }
 
+let searchTimer = null;
 document.getElementById("pkgSearch").addEventListener("input", (e) => {
   currentSearch = e.target.value;
-  renderPkgList();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(renderPkgList, 120);
 });
-document.querySelectorAll(".chip").forEach((chip) => {
+document.querySelectorAll("#tab-debloat .chip").forEach((chip) => {
   chip.addEventListener("click", () => {
-    document.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+    document.querySelectorAll("#tab-debloat .chip").forEach((c) => c.classList.remove("active"));
     chip.classList.add("active");
     currentFilter = chip.dataset.filter;
     renderPkgList();
   });
 });
+document.getElementById("pkgList").addEventListener("change", (e) => {
+  const el = e.target;
+  if (!el.matches || !el.matches("input[data-pkg]")) return;
+  if (el.checked) selected.add(el.dataset.pkg); else selected.delete(el.dataset.pkg);
+  updateSelBar();
+});
+document.getElementById("selRec").addEventListener("click", () => { resetSelection(); renderPkgList(); });
+document.getElementById("selClear").addEventListener("click", () => { selected.clear(); renderPkgList(); });
 
 let metaLoadRunning = false;
 async function autoLoadIconsAndNames() {
@@ -451,28 +484,31 @@ async function initDebloatTab() {
   await loadCuratedOverlay();
   await loadAllApps();
   await loadAppLabels();
-  window.__hpkAlreadyRan = !curatedActive;
+  resetSelection();
   const vb = document.getElementById("vendorBadge");
   if (vb) vb.textContent = t("detectedRom") + ": " + t("rom_" + detectedVendor);
   renderPkgList();
-  autoLoadIconsAndNames(); // fires in the background, one tiny exec() per app -- never awaited here
+  if (!NATIVE_META) autoLoadIconsAndNames(); // browser fallback only: the app reads icons/names natively
 }
 initDebloatTab();
 
 document.getElementById("runDebloat").addEventListener("click", async () => {
-  const checked = [...document.querySelectorAll('#pkgList input[type=checkbox]:checked')]
-    .map((c) => c.dataset.pkg);
+  const checked = [...selected];
   if (checked.length === 0) { toast(t("noSelection")); return; }
+  const names = checked.slice(0, 6).map((p) => "• " + labelFor(p)).join("\n") + (checked.length > 6 ? `\n… +${checked.length - 6}` : "");
+  if (!window.confirm(TT(
+    `Remove ${checked.length} app(s) for the current user?\n\n${names}\n\nYou can bring them back from the Restore tab.`,
+    `إزالة ${checked.length} تطبيق للمستخدم الحالي؟\n\n${names}\n\nتقدر ترجعهم من تبويب الاستعادة.`))) return;
 
   const deleteUi = document.getElementById("deleteUiAfter").checked ? "1" : "0";
   const btn = document.getElementById("runDebloat");
   const statusEl = document.getElementById("debloatStatus");
   btn.disabled = true;
   statusEl.style.display = "block";
-  statusEl.textContent = t("removing", checked.length);
+  statusEl.innerHTML = `<div class="prog"><i style="width:3%"></i></div><div class="sub">${t("removing", checked.length)}</div>`;
+  statusEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-  const cmd = `sh ${MODDIR}/scripts/debloat_run.sh ${deleteUi} ${checked.join(" ")}`;
-  await exec(cmd);
+  await exec(`sh ${MODDIR}/scripts/debloat_run.sh ${deleteUi} ${checked.join(" ")}`);
 
   let tries = 0;
   const poll = setInterval(async () => {
@@ -480,20 +516,18 @@ document.getElementById("runDebloat").addEventListener("click", async () => {
     try {
       const r = await fetch("dyn/status.json", { cache: "no-store" });
       const s = await r.json();
-      statusEl.textContent = `${s.done}/${s.total} — ` +
-        s.results.map((x) => (x.ok ? "✅" : "⚠️") + " " + x.pkg).join("\n");
+      const pct = s.total ? Math.round((s.done * 100) / s.total) : 0;
+      statusEl.innerHTML =
+        `<div class="prog"><i style="width:${Math.max(pct, 3)}%"></i></div><div class="sub">${s.done}/${s.total}</div>` +
+        s.results.map((x) => `<div class="resrow ${x.ok ? "ok" : "bad"}"><span class="m">${x.ok ? "✓" : "!"}</span>${escHtml(labelFor(x.pkg))}</div>`).join("");
       if (s.state === "done") {
         clearInterval(poll);
-        toast(t("done"));
-        if (deleteUi === "1") {
-          setTimeout(() => { initDebloatTab(); btn.disabled = false; btn.textContent = t("runDebloatBtn"); }, 1500);
-        } else {
-          btn.disabled = false;
-          btn.textContent = t("runDebloatBtn");
-        }
+        const failed = s.results.filter((x) => !x.ok).length;
+        toast(failed ? TT(`Done, ${failed} failed`, `تم، فشل ${failed}`) : t("done"));
+        setTimeout(() => { initDebloatTab(); btn.textContent = t("runDebloatBtn"); }, 1200);
       }
     } catch (e) { /* not written yet */ }
-    if (tries > 60) clearInterval(poll);
+    if (tries > 90) { clearInterval(poll); btn.disabled = false; }
   }, 1000);
 });
 

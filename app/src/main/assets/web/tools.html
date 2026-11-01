@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html data-nav="device" lang="en" dir="ltr" id="htmlRoot">
 <head>
+<script src="theme.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>MkVenomPro Tools</title>
@@ -78,34 +79,39 @@
   <!-- ===================== DEBLOAT ===================== -->
   <section id="tab-debloat" class="tab active">
     <div class="card">
-      <p data-i18n="debloatIntro1">Every app installed on the device — system and user — is listed below. Pick whatever you want removed. Removal uses <code>pm uninstall --user 0</code>, which is fully reversible.</p>
-      <p class="warn" data-i18n="debloatWarnGame">Gaming-performance services (joyose, migameservice, gamecenter.sdk.service, enhance.gameservice) are intentionally excluded from recommendations — removing them hurts gaming performance instead of helping it.</p>
-      <p class="warn" data-i18n="debloatWarnCore">Packages marked 🔒 are core system components and are locked here to prevent bricking the device.</p>
-    </div>
-
-    <div class="card">
-      <span id="vendorBadge" class="pkg-tag rec"></span>
+      <div class="dbhead"><span id="vendorBadge" class="pkg-tag rec"></span><div class="stat" id="dbStat"></div></div>
       <div id="metaStatus" class="sub" style="display:none"></div>
-      <input type="text" id="pkgSearch" class="search-box" data-i18n-ph="searchPlaceholder" placeholder="Search package name…">
+      <input type="text" id="pkgSearch" class="search-box" data-i18n-ph="searchPlaceholder" placeholder="Search apps or package names…" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:10px">
       <div class="filter-row">
         <button class="chip active" data-filter="all" data-i18n="filterAll">All</button>
         <button class="chip" data-filter="recommended" data-i18n="filterRecommended">Recommended</button>
         <button class="chip" data-filter="system" data-i18n="filterSystem">System</button>
         <button class="chip" data-filter="user" data-i18n="filterUser">User</button>
+        <button class="chip" data-filter="selected" id="chipSel">Selected</button>
       </div>
     </div>
 
     <div id="pkgLoading" class="card" data-i18n="loadingApps">Loading installed apps…</div>
     <div id="pkgList" class="card" style="display:none"></div>
 
-    <div class="card row">
-      <label class="switch-row">
-        <input type="checkbox" id="deleteUiAfter" checked>
-        <span data-i18n="deleteUiLabel">Remove the recommended-picks overlay after running (next time you'll just get the plain full app list)</span>
-      </label>
+    <div class="selbar" id="selBar">
+      <div class="cnt"><span id="selCount">0 selected</span><small id="selSub"></small></div>
+      <button class="secondary-btn" id="selRec">Recommended</button>
+      <button class="secondary-btn" id="selClear">Clear</button>
+      <button id="runDebloat" class="primary-btn" data-i18n="runDebloatBtn">Remove selected apps</button>
     </div>
-    <button id="runDebloat" class="primary-btn" data-i18n="runDebloatBtn">Remove selected apps</button>
     <div id="debloatStatus" class="card" style="display:none"></div>
+
+    <details class="card" id="dbInfo">
+      <summary>How removal works</summary>
+      <p data-i18n="debloatIntro1">Every app installed on the device — system and user — is listed below. Pick whatever you want removed. Removal uses <code>pm uninstall --user 0</code>, which is fully reversible.</p>
+      <p class="warn" data-i18n="debloatWarnGame">Gaming-performance services (joyose, migameservice, gamecenter.sdk.service, enhance.gameservice) are intentionally excluded from recommendations — removing them hurts gaming performance instead of helping it.</p>
+      <p class="warn" data-i18n="debloatWarnCore">Packages marked 🔒 are core system components and are locked here to prevent bricking the device.</p>
+      <label class="switch-row" style="margin-top:10px">
+        <input type="checkbox" id="deleteUiAfter" checked>
+        <span data-i18n="deleteUiLabel">Remove the recommended-picks overlay after running</span>
+      </label>
+    </details>
   </section>
 
 
