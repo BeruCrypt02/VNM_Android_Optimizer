@@ -34,3 +34,12 @@
 .selbar .secondary-btn{flex:0 0 auto;width:auto !important;display:inline-block;padding:7px 12px !important;font-size:12px !important;border-radius:999px !important;margin:0 !important}
 .selbar .primary-btn{flex:1 1 100%;width:100% !important;padding:10px 14px !important;font-size:13.5px !important;border-radius:999px !important;margin:0 !important}
 .toast{bottom:190px !important}
+
+/* ---------- tools page header: never truncate the title (logo + name + small badges) ---------- */
+.topbar{display:flex !important;align-items:center;gap:6px}
+.topbar .brand{flex:1 1 auto;min-width:0}
+.topbar .brand-text{min-width:0;flex:1 1 auto}
+.topbar .brand-text h1{font-size:14px !important;overflow:visible;text-overflow:clip}
+.topbar .brand-sub{display:none !important}
+.topbar-right{flex:0 0 auto}
+#romBadge{display:none !important}
