@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MkVenomPro Android Optimizer & Debloater</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>MkVenomPro Android Optimizer & Debloater</h1>
+  <div class="topbar-right">
+    <span id="bridgeStatus" class="badge">…</span>
+    <button id="langBtn" class="lang-btn">EN / AR</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="debloat" data-i18n="tabDebloat">Debloat</button>
+  <button class="tab-btn" data-tab="perf" data-i18n="tabPerf">Performance</button>
+  <button class="tab-btn" data-tab="restore" data-i18n="tabRestore">Restore</button>
+  <button class="tab-btn" data-tab="logs" data-i18n="tabLogs">Logs</button>
+</nav>
+
+<main>
+  <!-- ===================== DEBLOAT ===================== -->
+  <section id="tab-debloat" class="tab active">
+    <div class="card">
+      <p data-i18n="debloatIntro1">Every app installed on the device — system and user — is listed below. Pick whatever you want removed. Removal uses <code>pm uninstall --user 0</code>, which is fully reversible.</p>
+      <p class="warn" data-i18n="debloatWarnGame">Gaming-performance services (joyose, migameservice, gamecenter.sdk.service, enhance.gameservice) are intentionally excluded from recommendations — removing them hurts gaming performance instead of helping it.</p>
+      <p class="warn" data-i18n="debloatWarnCore">Packages marked 🔒 are core system components and are locked here to prevent bricking the device.</p>
+    </div>
+
+    <div class="card">
+      <span id="vendorBadge" class="pkg-tag rec"></span>
+      <div id="metaStatus" class="sub" style="display:none"></div>
+      <input type="text" id="pkgSearch" class="search-box" data-i18n-ph="searchPlaceholder" placeholder="Search package name…">
+      <div class="filter-row">
+        <button class="chip active" data-filter="all" data-i18n="filterAll">All</button>
+        <button class="chip" data-filter="recommended" data-i18n="filterRecommended">Recommended</button>
+        <button class="chip" data-filter="system" data-i18n="filterSystem">System</button>
+        <button class="chip" data-filter="user" data-i18n="filterUser">User</button>
+      </div>
+    </div>
+
+    <div id="pkgLoading" class="card" data-i18n="loadingApps">Loading installed apps…</div>
+    <div id="pkgList" class="card" style="display:none"></div>
+
+    <div class="card row">
+      <label class="switch-row">
+        <input type="checkbox" id="deleteUiAfter" checked>
+        <span data-i18n="deleteUiLabel">Remove the recommended-picks overlay after running (next time you'll just get the plain full app list)</span>
+      </label>
+    </div>
+    <button id="runDebloat" class="primary-btn" data-i18n="runDebloatBtn">Remove selected apps</button>
+    <div id="debloatStatus" class="card" style="display:none"></div>
+  </section>
+
+
+  <!-- ===================== RESTORE ===================== -->
+  <section id="tab-restore" class="tab">
+    <div class="card">
+      <h2 data-i18n="restoreTitle">♻️ Restore Removed System Apps</h2>
+      <p data-i18n="restoreDesc">Restore apps removed with pm uninstall --user 0.</p>
+    </div>
+    <div class="card">
+      <input type="text" id="restoreSearch" class="search-box" data-i18n-ph="searchPlaceholder" placeholder="Search package name…">
+    </div>
+    <div class="row-buttons">
+      <button id="refreshRestore" class="secondary-btn" data-i18n="refreshBtn">Refresh</button>
+      <button id="restoreSelectedBtn" class="primary-btn" data-i18n="restoreSelectedBtn">Restore selected</button>
+    </div>
+    <button id="restoreAllBtn" class="secondary-btn" data-i18n="restoreAllBtnLabel">Restore All Removed Apps</button>
+    <div id="restoreLoading" class="card" data-i18n="loadingRestore">Checking removed apps…</div>
+    <div id="restoreEmpty" class="card" style="display:none" data-i18n="restoreEmptyMsg">Nothing removed right now — your trash bin is empty. 🎉</div>
+    <div id="restoreList" class="card" style="display:none"></div>
+    <pre id="restoreView" class="card logbox" style="display:none"></pre>
+  </section>
+
+  <!-- ===================== PERFORMANCE ===================== -->
+  <section id="tab-perf" class="tab">
+    <div class="card">
+      <p data-i18n="perfIntro">Each switch below applies immediately and is re-applied automatically on every boot / maintenance cycle.</p>
+    </div>
+    <div id="perfList" class="card"></div>
+  </section>
+
+  <!-- ===================== LOGS ===================== -->
+  <section id="tab-logs" class="tab">
+    <div class="card">
+      <p data-i18n="logsIntro">The log lives on internal storage (not /data), so you can open it with any file manager or send it over without root:</p>
+      <code>/sdcard/HyperOSPerfKeeper/perfkeeper.log</code>
+    </div>
+    <div class="row-buttons">
+      <button id="refreshLog" class="primary-btn" data-i18n="refreshLogBtn">Refresh log</button>
+      <button id="copyLog" class="secondary-btn" data-i18n="copyLogBtn">Copy to clipboard</button>
+    </div>
+    <pre id="logView" class="card logbox" data-i18n="loadingLog">Loading…</pre>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

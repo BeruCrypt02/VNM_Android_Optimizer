@@ -1,0 +1,15 @@
+[
+  {"pkg":"com.samsung.android.bixby.agent","cat_en":"Bixby","cat_ar":"بيكسبي","desc_en":"Bixby voice assistant agent","desc_ar":"خدمة مساعد بيكسبي الصوتي","default":true},
+  {"pkg":"com.samsung.android.bixby.service","cat_en":"Bixby","cat_ar":"بيكسبي","desc_en":"Background Bixby service","desc_ar":"خدمة بيكسبي في الخلفية","default":true},
+  {"pkg":"com.samsung.android.app.spage","cat_en":"Bixby","cat_ar":"بيكسبي","desc_en":"Bixby Home / Samsung Free feed screen","desc_ar":"شاشة Bixby Home","default":true},
+  {"pkg":"com.samsung.android.rubin.app","cat_en":"Bixby","cat_ar":"بيكسبي","desc_en":"Bixby Routines automation engine","desc_ar":"محرك أتمتة Bixby Routines","default":false},
+  {"pkg":"com.samsung.android.themestore","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"Samsung Theme Store","desc_ar":"متجر ثيمات سامسونج","default":true},
+  {"pkg":"com.samsung.android.app.tips","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"Samsung Tips app","desc_ar":"تطبيق نصائح سامسونج","default":true},
+  {"pkg":"com.samsung.android.scloud","cat_en":"Cloud","cat_ar":"سحابة","desc_en":"Samsung Cloud backup — keep if you use it","desc_ar":"نسخ احتياطي Samsung Cloud — سيبه لو بتستخدمه","default":false},
+  {"pkg":"com.samsung.oh","cat_en":"Analytics/Tracking","cat_ar":"تتبع/تحليلات","desc_en":"Samsung online help / diagnostics","desc_ar":"مساعدة/تشخيص سامسونج أونلاين","default":true},
+  {"pkg":"com.samsung.android.aremoji","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"AR Emoji / AR Zone camera add-on","desc_ar":"إضافة AR Emoji للكاميرا","default":true},
+  {"pkg":"com.samsung.android.video","cat_en":"Duplicate app","cat_ar":"تطبيقات مكررة","desc_en":"Samsung video player (if you use another one)","desc_ar":"مشغل فيديو سامسونج (لو بتستخدم تطبيق تاني)","default":false},
+  {"pkg":"com.samsung.android.samsungpass","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"Samsung Pass password manager — keep if you use it","desc_ar":"مدير كلمات مرور Samsung Pass — سيبه لو بتستخدمه","default":false},
+  {"pkg":"com.sec.android.app.samsungapps","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"Galaxy Store — keep if you install apps from it","desc_ar":"متجر Galaxy Store — سيبه لو بتنزل منه تطبيقات","default":false},
+  {"pkg":"com.samsung.android.mobileservice","cat_en":"Analytics/Tracking","cat_ar":"تتبع/تحليلات","desc_en":"Samsung account/device sync service","desc_ar":"خدمة مزامنة حساب/جهاز سامسونج","default":false}
+]

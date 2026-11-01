@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Ultimate_Tools_Spinel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">M</div>
+    <div class="brand-text">
+      <h1>MK VENOM - LEINXCLEARS</h1>
+      <span class="brand-sub">Optimizer &amp; Debloater</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span id="romBadge" class="badge"></span>
+    <span id="bridgeStatus" class="badge">…</span>
+    <button id="langBtn" class="lang-btn">EN / AR</button>
+  </div>
+</header>
+<div class="owner-strip"><span data-i18n="byLabel">by</span> <b>mkvenom</b> &amp; <b>leinxclears</b></div>
+
+<main>
+  <!-- ===================== DEBLOAT ===================== -->
+  <section id="tab-debloat" class="tab active">
+    <div class="card">
+      <p data-i18n="debloatIntro1">Every app installed on the device — system and user — is listed below. Pick whatever you want removed. Removal uses <code>pm uninstall --user 0</code>, which is fully reversible.</p>
+      <p class="warn" data-i18n="debloatWarnGame">Gaming-performance services (joyose, migameservice, gamecenter.sdk.service, enhance.gameservice) are intentionally excluded from recommendations — removing them hurts gaming performance instead of helping it.</p>
+      <p class="warn" data-i18n="debloatWarnCore">Packages marked 🔒 are core system components and are locked here to prevent bricking the device.</p>
+    </div>
+
+    <div class="card">
+      <span id="vendorBadge" class="pkg-tag rec"></span>
+      <div id="metaStatus" class="sub" style="display:none"></div>
+      <input type="text" id="pkgSearch" class="search-box" data-i18n-ph="searchPlaceholder" placeholder="Search package name…">
+      <div class="filter-row">
+        <button class="chip active" data-filter="all" data-i18n="filterAll">All</button>
+        <button class="chip" data-filter="recommended" data-i18n="filterRecommended">Recommended</button>
+        <button class="chip" data-filter="system" data-i18n="filterSystem">System</button>
+        <button class="chip" data-filter="user" data-i18n="filterUser">User</button>
+      </div>
+    </div>
+
+    <div id="pkgLoading" class="card" data-i18n="loadingApps">Loading installed apps…</div>
+    <div id="pkgList" class="card" style="display:none"></div>
+
+    <div class="card row">
+      <label class="switch-row">
+        <input type="checkbox" id="deleteUiAfter" checked>
+        <span data-i18n="deleteUiLabel">Remove the recommended-picks overlay after running (next time you'll just get the plain full app list)</span>
+      </label>
+    </div>
+    <button id="runDebloat" class="primary-btn" data-i18n="runDebloatBtn">Remove selected apps</button>
+    <div id="debloatStatus" class="card" style="display:none"></div>
+  </section>
+
+
+  <!-- ===================== RESTORE ===================== -->
+  <section id="tab-restore" class="tab">
+    <div class="card">
+      <h2 data-i18n="restoreTitle">♻️ Restore Removed System Apps</h2>
+      <p data-i18n="restoreDesc">Restore apps removed with pm uninstall --user 0.</p>
+    </div>
+    <div class="card">
+      <input type="text" id="restoreSearch" class="search-box" data-i18n-ph="searchPlaceholder" placeholder="Search package name…">
+    </div>
+    <div class="row-buttons">
+      <button id="refreshRestore" class="secondary-btn" data-i18n="refreshBtn">Refresh</button>
+      <button id="restoreSelectedBtn" class="primary-btn" data-i18n="restoreSelectedBtn">Restore selected</button>
+    </div>
+    <button id="restoreAllBtn" class="secondary-btn" data-i18n="restoreAllBtnLabel">Restore All Removed Apps</button>
+    <div id="restoreLoading" class="card" data-i18n="loadingRestore">Checking removed apps…</div>
+    <div id="restoreEmpty" class="card" style="display:none" data-i18n="restoreEmptyMsg">Nothing removed right now — your trash bin is empty. 🎉</div>
+    <div id="restoreList" class="card" style="display:none"></div>
+    <pre id="restoreView" class="card logbox" style="display:none"></pre>
+  </section>
+
+  <!-- ===================== PERFORMANCE ===================== -->
+  <section id="tab-perf" class="tab">
+    <div class="card">
+      <p data-i18n="perfIntro">Each switch below applies immediately and is re-applied automatically on every boot / maintenance cycle.</p>
+    </div>
+    <div id="perfList" class="card"></div>
+
+    <div class="card">
+      <h2 data-i18n="govTitle">CPU / GPU governors</h2>
+      <p data-i18n="govDesc">Pick a governor per CPU cluster and for the GPU. Choices apply instantly, are saved, and are re-applied after every boot (and every 15 s if the system changes them back).</p>
+      <p class="warn" data-i18n="govWarn">The performance governor pins clocks at maximum: faster, but hotter and heavier on the battery. Thermal protection still applies.</p>
+      <div class="row-buttons gov-quick">
+        <button id="govPerfAll" class="primary-btn" data-i18n="govPerfAll">Performance (CPU + GPU)</button>
+        <button id="govReset" class="secondary-btn" data-i18n="govReset">Restore defaults</button>
+      </div>
+    </div>
+    <div id="govList" class="card"><div class="sub" data-i18n="govLoading">Reading governors…</div></div>
+    <button id="govRefresh" class="secondary-btn" data-i18n="refreshBtn">Refresh</button>
+
+    <div class="card">
+      <h2 data-i18n="frTitle">CPU cluster frequency</h2>
+      <p class="sub">Live status of every CPU cluster: the clock it is running at now and the limits the kernel currently allows. Read only.</p>
+    </div>
+    <div id="freqList" class="card"><div class="sub" data-i18n="loadingShort">Reading…</div></div>
+    <button id="frRefresh" class="secondary-btn" data-i18n="refreshBtn">Refresh</button>
+  </section>
+
+  <!-- ===================== OTG ===================== -->
+  <section id="tab-otg" class="tab">
+    <div class="card">
+      <h2 data-i18n="otgTitle">USB OTG — Source mode</h2>
+      <p data-i18n="otgDesc">ON forces the USB-C port to source (phone powers OTG devices) and keeps it there. OFF forces it off and keeps it off. A change is saved right away but only takes effect after a reboot.</p>
+    </div>
+    <div class="card">
+      <div class="perf-item">
+        <div>
+          <div class="label" data-i18n="otgLabel">Source mode OTG</div>
+          <div class="sub" data-i18n="otgSub">Forced for the whole session, re-read at every boot</div>
+        </div>
+        <div class="seg-toggle" id="otgToggle">
+          <button class="on-btn" data-val="on" data-i18n="on">ON</button>
+          <button class="off-btn" data-val="off" data-i18n="off">OFF</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="otgSaved">Saved</span><b id="otgSaved">…</b></div>
+        <div><span class="k" data-i18n="otgActive">Running now</span><b id="otgActive">…</b></div>
+      </div>
+      <div id="otgPending" class="pending" style="display:none" data-i18n="otgPending">Change saved — reboot to apply it.</div>
+      <div id="otgNa" class="warn" style="display:none" data-i18n="otgNa">USB-C port not found on this device, OTG control is inactive.</div>
+    </div>
+    <button id="otgReboot" class="secondary-btn" data-i18n="rebootBtn">Reboot now</button>
+
+    <div class="card">
+      <h2 data-i18n="otgRolesTitle">USB-C port status</h2>
+      <div class="otg-state otg-grid" id="otgRoles"><div class="sub" data-i18n="loadingShort">Reading…</div></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="otgDevTitle">Connected OTG devices</h2>
+      <div id="otgDevices"><div class="sub" data-i18n="loadingShort">Reading…</div></div>
+      <div class="sub" data-i18n="otgDevHint">Plug something into the USB-C port. Detection refreshes every 2 seconds.</div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="otgLogTitle">OTG service log</h2>
+      <pre id="otgLog" class="logbox otg-log"></pre>
+    </div>
+
+  </section>
+
+
+  <!-- ===================== MODULES ===================== -->
+  <section id="tab-mods" class="tab">
+    <div class="card">
+      <h2 data-i18n="brTitle">Brightness fix</h2>
+      <p data-i18n="brDesc">Whole-slider brightness remap up to the panel maximum, with thermal derate. Switching applies immediately and is remembered after reboot.</p>
+    </div>
+    <div class="card">
+      <div class="perf-item">
+        <div>
+          <div class="label" data-i18n="brLabel">Brightness module</div>
+          <div class="sub" data-i18n="brSub">OFF stops the daemon and releases the backlight node</div>
+        </div>
+        <div class="seg-toggle" id="brToggle">
+          <button class="on-btn" data-val="on" data-i18n="on">ON</button>
+          <button class="off-btn" data-val="off" data-i18n="off">OFF</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="brSaved">Saved</span><b id="brSaved">…</b></div>
+        <div><span class="k" data-i18n="brRunning">Daemon</span><b id="brRunning">…</b></div>
+      </div>
+      <div id="brInfo" class="sub"></div>
+    </div>
+      <div class="card">
+      <h2 data-i18n="fodTitle">FOD fix</h2>
+      <p data-i18n="fodDesc">Under-display fingerprint fix: sensor position, fingerprint watcher and overlay. Switching applies right away; the boot-time parts are fully reverted after a reboot.</p>
+    </div>
+    <div class="card">
+      <div class="perf-item">
+        <div>
+          <div class="label" data-i18n="fodLabel">FOD fix</div>
+          <div class="sub" data-i18n="fodSub">OFF stops the fingerprint watcher and disables the overlay</div>
+        </div>
+        <div class="seg-toggle" id="fodToggle">
+          <button class="on-btn" data-val="on" data-i18n="on">ON</button>
+          <button class="off-btn" data-val="off" data-i18n="off">OFF</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="brSaved">Saved</span><b id="fodSaved">…</b></div>
+        <div><span class="k" data-i18n="fodWatcher">Watcher</span><b id="fodRunning">…</b></div>
+      </div>
+      <div id="fodInfo" class="sub"></div>
+    </div>
+      <div class="card">
+      <h2 data-i18n="chTitle">Fast charge fix</h2>
+      <p data-i18n="chDesc">Removes the charge throttle that held the phone at about 11 W and keeps it removed. ON by default and re-applied after every boot. OFF stops it, puts the original value back and it stays off after reboot. Pauses itself above 42 °C.</p>
+    </div>
+    <div class="card">
+      <div class="perf-item">
+        <div>
+          <div class="label" data-i18n="chLabel">Fast charge fix</div>
+          <div class="sub" data-i18n="chSub">OFF restores the stock charge limit</div>
+        </div>
+        <div class="seg-toggle" id="chToggle">
+          <button class="on-btn" data-val="on" data-i18n="on">ON</button>
+          <button class="off-btn" data-val="off" data-i18n="off">OFF</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="brSaved">Saved</span><b id="chSaved">…</b></div>
+        <div><span class="k" data-i18n="chLoop">Loop</span><b id="chRunning">…</b></div>
+        <div><span class="k" data-i18n="chLimit">Limit</span><b id="chLimit">…</b></div>
+        <div><span class="k" data-i18n="chTemp">Temp</span><b id="chTemp">…</b></div>
+      </div>
+      <div id="chInfo" class="sub"></div>
+    </div>
+      <div class="card">
+      <h2 data-i18n="spTitle">Game spoofer</h2>
+      <p data-i18n="spDesc">Makes the phone report itself as a Samsung Galaxy S24 Ultra (SM-S928B) to unlock higher graphics and frame rates in supported games. Switching applies instantly and is remembered after reboot — close and reopen the game afterwards.</p>
+    </div>
+    <div class="card">
+      <div class="perf-item">
+        <div>
+          <div class="label" data-i18n="spLabel">Spoof as Galaxy S24 Ultra</div>
+          <div class="sub" data-i18n="spSub">OFF puts the real device model back</div>
+        </div>
+        <div class="seg-toggle" id="spToggle">
+          <button class="on-btn" data-val="on" data-i18n="on">ON</button>
+          <button class="off-btn" data-val="off" data-i18n="off">OFF</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="spModel">Model now</span><b id="spModel">…</b></div>
+        <div><span class="k" data-i18n="spSaved">Saved</span><b id="spSaved">…</b></div>
+      </div>
+      <div id="spInfo" class="sub"></div>
+    </div>
+    <div class="card">
+      <h2>ReZygisk</h2>
+      <p class="sub">Standalone Zygisk implementation (v1.0.0, bundled unmodified). OFF by default. ON flashes it fresh; OFF force-deletes every ReZygisk file from the phone. Reboot after switching. If you use Magisk, turn its built-in Zygisk off first.</p>
+    </div>
+    <div class="card">
+      <div class="perf-item">
+        <div>
+          <div class="label">ReZygisk</div>
+          <div class="sub">ON = flash it again, OFF = delete everything</div>
+        </div>
+        <div class="seg-toggle" id="rzToggle">
+          <button class="on-btn" data-val="on" data-i18n="on">ON</button>
+          <button class="off-btn" data-val="off" data-i18n="off">OFF</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="brSaved">Saved</span><b id="rzSaved">…</b></div>
+        <div><span class="k">State</span><b id="rzState">…</b></div>
+      </div>
+      <div id="rzInfo" class="sub" style="white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- ===================== DEVICE ===================== -->
+  <section id="tab-dev" class="tab">
+    <div class="card">
+      <h2 data-i18n="batTitle">Battery</h2>
+      <div class="bat-top"><div class="bat-pct" id="batPct">–</div><div class="bat-state" id="batState">…</div></div>
+      <div class="bat-bar"><div class="bat-fill" id="batFill"></div></div>
+      <div class="otg-state otg-grid" id="batGrid"></div>
+    </div>
+    <div class="card" id="chgCard">
+      <h2 data-i18n="chgTitle">Charger</h2>
+      <div class="otg-state otg-grid" id="chgGrid"></div>
+      <div class="sub" id="chgNote"></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="ramTitle">Memory (RAM)</h2>
+      <div class="bat-top"><div class="bat-pct" id="ramPct">–</div><div class="bat-state" id="ramUsed">…</div></div>
+      <div class="bat-bar"><div class="bat-fill" id="ramFill"></div></div>
+      <div class="otg-state otg-grid" id="ramGrid"></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="stoTitle">Storage</h2>
+      <div class="bat-top"><div class="bat-pct" id="stoFree">–</div><div class="bat-state" id="stoUsed">…</div></div>
+      <div class="bat-bar"><div class="bat-fill" id="stoFill"></div></div>
+      <div class="otg-state otg-grid" id="stoGrid"></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="scrTitle">Screen</h2>
+      <div class="otg-state"><div><span class="k" data-i18n="scrHz">Current refresh rate</span><b id="scrHz">…</b></div></div>
+    </div>
+    <div class="card">
+      <h2>SELinux</h2>
+      <div class="perf-item">
+        <div>
+          <div class="label">SELinux mode</div>
+          <div class="sub">Applies right now and is remembered after reboot. Permissive lowers security: use it only for testing.</div>
+        </div>
+        <div class="seg-toggle" id="selToggle">
+          <button class="on-btn" data-val="enforcing">Enforcing</button>
+          <button class="off-btn" data-val="permissive">Permissive</button>
+        </div>
+      </div>
+      <div class="otg-state">
+        <div><span class="k">Now</span><b id="selNow">…</b></div>
+        <div><span class="k">Remembered</span><b id="selSaved">…</b></div>
+      </div>
+      <div id="selInfo" class="sub"></div>
+    </div>
+  </section>
+
+
+  <!-- ===================== SENSORS ===================== -->
+  <section id="tab-sens" class="tab">
+    <div class="card">
+      <h2 data-i18n="senTitle">Sensor check</h2>
+      <p data-i18n="senDesc">Shows which sensors this GSI really exposes to Android. A sensor missing here means the GSI or vendor HAL does not see it — apps cannot use it either.</p>
+      <div id="senSummary" class="sen-summary">…</div>
+    </div>
+    <div class="card"><div id="senCore"></div></div>
+    <div class="card">
+      <h2 data-i18n="senHwTitle">Hardware services</h2>
+      <div id="senHw"></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="senOtherTitle">All sensors found</h2>
+      <div id="senOther" class="sub"></div>
+    </div>
+    <button id="senRefresh" class="secondary-btn" data-i18n="refreshBtn">Refresh</button>
+  </section>
+
+  <!-- ===================== TERMINAL ===================== -->
+  <section id="tab-term" class="tab">
+    <div class="seg-toggle seg-wide" id="termMode">
+      <button class="active" data-val="term" data-i18n="termModeTerm">Terminal</button>
+      <button data-val="logs" data-i18n="termModeLogs">Logs</button>
+    </div>
+    <div id="termPane">
+    <div class="card">
+      <h2 data-i18n="termTitle">Root terminal</h2>
+      <p class="warn" data-i18n="termWarn">Commands run as root. Each command is stopped after 60 s, and interactive programs (top, vi, …) do not work here. Be careful.</p>
+    </div>
+    <div class="term-chips" id="termChips"></div>
+    <pre id="termOut" class="card logbox term-out"></pre>
+    <div class="term-bar">
+      <span id="termPrompt" class="term-prompt">#</span>
+      <input type="text" id="termInput" class="search-box" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-ph="termPlaceholder" placeholder="command…">
+    </div>
+    <div class="row-buttons">
+      <button id="termRun" class="primary-btn" data-i18n="termRun">Run</button>
+      <button id="termHistUp" class="secondary-btn term-small">↑</button>
+      <button id="termHistDown" class="secondary-btn term-small">↓</button>
+      <button id="termClear" class="secondary-btn" data-i18n="termClear">Clear</button>
+    </div>
+    </div>
+    <div id="tlogPane" style="display:none">
+      <div class="card">
+        <h2 data-i18n="tlogTitle">Log viewer</h2>
+        <p class="sub" data-i18n="tlogDesc">Pick a log. Shows the last lines; refresh to update.</p>
+        <div class="term-chips" id="tlogChips"></div>
+      </div>
+      <div class="row-buttons">
+        <button id="tlogRefresh" class="primary-btn" data-i18n="refreshLogBtn">Refresh log</button>
+        <button id="tlogCopy" class="secondary-btn" data-i18n="copyLogBtn">Copy to clipboard</button>
+      </div>
+      <pre id="tlogOut" class="card logbox term-out" data-i18n="loadingShort">Reading…</pre>
+    </div>
+  </section>
+
+  <!-- ===================== FLASH (ADB + FASTBOOT over OTG) ===================== -->
+  <section id="tab-flash" class="tab">
+    <div class="card">
+      <h2 data-i18n="flTitle">ADB &amp; Fastboot</h2>
+      <p data-i18n="flDesc">Flash, sideload and manage ANOTHER Android device plugged into this phone's USB-C port over OTG. This never touches this phone.</p>
+      <p class="warn" data-i18n="flWarn">Flashing the wrong image can brick the target device. Double-check the device, partition and file before you run anything.</p>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="flStateTitle">Device state</h2>
+      <div class="bat-top"><div class="bat-pct" id="flStateBig" style="font-size:20px">—</div><div class="bat-state" id="flStateSub"></div></div>
+      <div class="sub" data-i18n="flStateHint">Live: updates every 3 s (device / unauthorized / recovery / sideload / fastboot / rebooting / disconnected).</div>
+    </div>
+
+    <div class="card">
+      <h2>MiTool</h2>
+      <p class="sub" data-i18n="miDesc">Installs MiForge MiTool through Termux (the same one-liner works inside Termux itself).</p>
+      <div id="miStatus" class="sub"></div>
+      <div class="row-buttons">
+        <button id="miInstall" class="primary-btn" data-i18n="miInstall">Install / update MiTool</button>
+        <button id="miRun" class="secondary-btn" data-i18n="miRun">Run MiTool</button>
+      </div>
+      <input type="text" id="miArgs" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="arguments (optional)">
+      <pre id="miOut" class="logbox term-out" style="display:none"></pre>
+      <div class="term-input" style="display:flex;gap:8px;margin-top:8px;align-items:center">
+        <input type="text" id="miIn" class="search-box" style="flex:1;margin:0" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="Type here (e.g. 1) and press Send">
+        <button id="miSend" class="primary-btn">Send</button>
+        <button id="miStop" class="secondary-btn">Stop</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="flToolsTitle">Tools</h2>
+      <div class="otg-state otg-grid" id="flTools"><div class="sub" data-i18n="loadingShort">Reading…</div></div>
+      <div id="flToolsHelp" class="warn" style="display:none"></div>
+      <div class="row-buttons">
+        <button id="flImport" class="primary-btn" data-i18n="flImport">Import tools from storage</button>
+        <button id="flRemove" class="secondary-btn" data-i18n="flRemove">Remove</button>
+      </div>
+      <div id="flImportOut" class="sub" style="white-space:pre-wrap"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="flDevTitle">Connected device</h2>
+      <div id="flDevices"><div class="sub" data-i18n="loadingShort">Reading…</div></div>
+      <div class="sub" id="flUsbTitle" style="margin-top:10px" data-i18n="flUsbSeen">USB devices the kernel sees:</div>
+      <div id="flUsb" class="sub"></div>
+      <div id="flRoleWarn" class="warn" style="display:none" data-i18n="flRoleWarn">This phone is not in USB host mode. Turn the OTG fix ON in the OTG tab and plug the cable in with an OTG adapter.</div>
+      <div class="row-buttons">
+        <button id="flRefresh" class="primary-btn" data-i18n="refreshBtn">Refresh</button>
+        <button id="flKill" class="secondary-btn" data-i18n="flKill">Restart adb server</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="flFileTitle">File</h2>
+      <p class="sub" data-i18n="flFileDesc">Pick an image / zip / apk from Download, or type a full path.</p>
+      <div id="flFiles" class="term-chips"></div>
+      <input type="text" id="flFile" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="/sdcard/Download/boot.img">
+      <button id="flFilesRefresh" class="secondary-btn" data-i18n="flFilesRefresh">Rescan storage</button>
+    </div>
+
+    <div class="seg-toggle seg-wide" id="flMode">
+      <button class="active" data-val="fastboot">Fastboot</button>
+      <button data-val="adb">ADB</button>
+    </div>
+
+    <div id="flPaneFb">
+      <div class="card">
+        <h2 data-i18n="flFbTitle">Fastboot actions</h2>
+        <p class="sub" data-i18n="flFbHint">Target must be in bootloader / fastboot mode (Vol-Down + Power on most phones).</p>
+        <input type="text" id="flPart" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="partition (boot, recovery, vbmeta, super…)">
+        <div id="flPartChips" class="term-chips"></div>
+        <label class="checkrow"><input type="checkbox" id="flVerity"> <span data-i18n="flVerity">Disable verity + verification (vbmeta)</span></label>
+        <div class="row-buttons">
+          <button id="flFbFlash" class="primary-btn" data-i18n="flFlash">Flash file to partition</button>
+          <button id="flFbBoot" class="secondary-btn" data-i18n="flBootOnce">Boot image (no flash)</button>
+        </div>
+        <div class="row-buttons">
+          <button id="flFbErase" class="secondary-btn" data-i18n="flErase">Erase partition</button>
+          <button id="flFbWipe" class="secondary-btn" data-i18n="flWipe">Wipe data (-w)</button>
+        </div>
+        <div class="row-buttons">
+          <button class="secondary-btn" data-fb="set_active a" data-i18n="flSlotA">Active slot A</button>
+          <button class="secondary-btn" data-fb="set_active b" data-i18n="flSlotB">Active slot B</button>
+        </div>
+        <div class="row-buttons">
+          <button class="secondary-btn" data-fb="getvar all" data-i18n="flGetvar">getvar all</button>
+          <button class="secondary-btn" data-fb="reboot" data-i18n="flRebootSys">Reboot</button>
+        </div>
+        <div class="row-buttons">
+          <button class="secondary-btn" data-fb="reboot bootloader">→ Bootloader</button>
+          <button class="secondary-btn" data-fb="reboot recovery">→ Recovery</button>
+          <button class="secondary-btn" data-fb="reboot fastboot">→ fastbootd</button>
+        </div>
+        <div class="row-buttons">
+          <button id="flUnlock" class="secondary-btn" data-i18n="flUnlock">Unlock bootloader</button>
+          <button id="flLock" class="secondary-btn" data-i18n="flLock">Lock bootloader</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="flPaneAdb" style="display:none">
+      <div class="card">
+        <h2 data-i18n="flAdbTitle">ADB actions</h2>
+        <p class="sub" data-i18n="flAdbHint">Target needs USB debugging ON and must accept this phone's RSA key the first time.</p>
+        <div class="row-buttons">
+          <button id="flAdbSideload" class="primary-btn" data-i18n="flSideload">Sideload zip</button>
+          <button id="flAdbInstall" class="secondary-btn" data-i18n="flInstall">Install apk</button>
+        </div>
+        <div class="row-buttons">
+          <button class="secondary-btn" data-adb="reboot" data-i18n="flRebootSys">Reboot</button>
+          <button class="secondary-btn" data-adb="reboot bootloader">→ Bootloader</button>
+        </div>
+        <div class="row-buttons">
+          <button class="secondary-btn" data-adb="reboot recovery">→ Recovery</button>
+          <button class="secondary-btn" data-adb="reboot fastboot">→ fastbootd</button>
+          <button class="secondary-btn" data-adb="reboot sideload">→ Sideload</button>
+        </div>
+        <div class="row-buttons">
+          <button class="secondary-btn" data-adb="shell getprop ro.product.model" data-i18n="flModel">Model</button>
+          <button class="secondary-btn" data-adb="shell getprop ro.build.fingerprint" data-i18n="flFingerprint">Build fingerprint</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="flRawTitle">Custom command</h2>
+      <div class="term-bar">
+        <span id="flRawPrompt" class="term-prompt">fastboot</span>
+        <input type="text" id="flRaw" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="getvar product">
+      </div>
+      <button id="flRawRun" class="secondary-btn" data-i18n="termRun">Run</button>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="flOutTitle">Output</h2>
+      <div class="otg-state"><div><span class="k" data-i18n="flStatus">Status</span><b id="flJobState">—</b></div></div>
+      <pre id="flOut" class="logbox term-out"></pre>
+      <div class="row-buttons">
+        <button id="flCancel" class="secondary-btn" data-i18n="flCancel">Cancel</button>
+        <button id="flCopy" class="secondary-btn" data-i18n="copyLogBtn">Copy to clipboard</button>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+  <!-- ===================== USB MANAGEMENT ===================== -->
+  <section id="tab-usb" class="tab">
+    <div class="card">
+      <h2 data-i18n="usbTitle">USB management</h2>
+      <p data-i18n="usbDesc">Read the files and the information of the phone plugged into this one over OTG (needs USB debugging ON there and this phone's key accepted).</p>
+      <div id="usbDev" class="sub">…</div>
+      <div class="row-buttons">
+        <button id="usbRefresh" class="primary-btn" data-i18n="refreshBtn">Refresh</button>
+        <button id="usbShot" class="secondary-btn" data-i18n="stShot">📸 Screenshot</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="usbInfoTitle">Phone information</h2>
+      <div id="stRom" class="sub"></div>
+      <pre id="stInfo" class="logbox term-out" style="max-height:none;white-space:pre-wrap">…</pre>
+    </div>
+    <div class="card" id="stShotCard" style="display:none">
+      <h2 data-i18n="stShotTitle">Last screenshot</h2>
+      <img id="stImg" style="width:100%;border-radius:8px" alt="">
+      <div id="stShotPath" class="sub" style="direction:ltr;text-align:left"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="usbFilesTitle">Files</h2>
+      <p class="sub" data-i18n="mgPullHint">Pulled files land in /sdcard/Download/OTG_Pulled.</p>
+      <div class="term-bar"><span class="term-prompt">📁</span><input type="text" id="mgPath" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="/sdcard"></div>
+      <div class="row-buttons">
+        <button id="mgGo" class="primary-btn" data-i18n="mgOpen">Open</button>
+        <button id="mgUp" class="secondary-btn" data-i18n="mgUp">⬆ Up</button>
+        <button id="mgMk" class="secondary-btn" data-i18n="mgMkdir">New folder</button>
+      </div>
+      <input type="text" id="mgNew" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="new folder name">
+    </div>
+    <div id="mgList" class="card mg-box"><div class="sub" data-i18n="mgNone">Connect a phone, then open a folder.</div></div>
+    <div id="mgBar" class="card" style="display:none">
+      <div class="sub" id="mgSelName" style="direction:ltr;text-align:left;word-break:break-all"></div>
+      <div class="row-buttons"><button id="mgPull" class="primary-btn">Pull</button><button id="mgDel" class="secondary-btn">Delete</button></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="mgPushTitle">Send a file to this folder</h2>
+      <input type="text" id="mgLocal" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="/sdcard/Download/file.zip">
+      <button id="mgPush" class="secondary-btn" data-i18n="mgPush">Push file</button>
+      <pre id="mgOut" class="logbox term-out" style="display:none"></pre>
+    </div>
+  </section>
+
+  <!-- ===================== TOUCHPAD ===================== -->
+  <section id="tab-tp" class="tab">
+    <div class="card">
+      <h2 data-i18n="tpTitle">Touchpad</h2>
+      <p data-i18n="tpDesc">Use this phone's screen as a mouse for the phone plugged into its USB-C (OTG) port.</p>
+      <p class="sub" id="tpModeHint"></p>
+      <div class="otg-state">
+        <div><span class="k" data-i18n="tpStatus">Status</span><b id="tpState">...</b></div>
+        <div><span class="k" data-i18n="tpTarget">Link</span><b id="tpTarget" style="font-size:12px;word-break:break-all">-</b></div>
+      </div>
+      <div class="row-buttons" style="margin-top:10px">
+        <button id="tpConnect" class="primary-btn" data-i18n="tpConnect">Connect</button>
+        <button id="tpStop" class="secondary-btn" data-i18n="tpStop">Disconnect</button>
+      </div>
+      <div id="tpWarn" class="pending" style="display:none"></div>
+    </div>
+
+    <div class="card">
+      <div id="tpPad" class="tp-pad">
+        <img id="tpImg" alt="" draggable="false">
+        <div id="tpDot" class="tp-dot"></div>
+        <div id="tpHint" class="tp-hint"></div>
+      </div>
+      <div class="row-buttons tp-btns">
+        <button id="tpL" class="secondary-btn"></button>
+        <button id="tpM" class="secondary-btn"></button>
+        <button id="tpR" class="secondary-btn"></button>
+      </div>
+      <div id="tpKeys" class="row-buttons tp-btns">
+        <button class="secondary-btn" data-key="4" data-i18n="tpBack">Back</button>
+        <button class="secondary-btn" data-key="3" data-i18n="tpHome">Home</button>
+        <button class="secondary-btn" data-key="187" data-i18n="tpRecents">Recents</button>
+        <button class="secondary-btn" data-key="26">Power</button>
+      </div>
+      <div class="perf-item" style="border-bottom:none">
+        <div><div class="label" data-i18n="tpSens">Speed</div></div>
+        <input type="range" id="tpSens" min="0.5" max="4" step="0.1" value="1.6" style="flex:1;margin-inline-start:14px;accent-color:var(--red)">
+      </div>
+      <label class="checkrow"><input type="checkbox" id="tpNat" checked><span data-i18n="tpNatural">Natural scrolling (content follows your fingers)</span></label>
+      <div id="tpAdbOpts">
+        <label class="checkrow"><input type="checkbox" id="tpDirect"><span data-i18n="tpDirectLbl">Direct mode: tap where you touch (instead of a relative pointer)</span></label>
+        <label class="checkrow"><input type="checkbox" id="tpAuto"><span data-i18n="tpAutoLbl">Refresh the preview every 2.5 s</span></label>
+        <button id="tpShot" class="secondary-btn" data-i18n="tpPreviewBtn">Refresh preview now</button>
+      </div>
+    </div>
+    <pre id="tpLog" class="card logbox term-out" style="display:none"></pre>
+  </section>
+
+  <!-- ===================== LOGS ===================== -->
+  <section id="tab-logs" class="tab">
+    <div class="card">
+      <p data-i18n="logsIntro">The log lives on internal storage (not /data), so you can open it with any file manager or send it over without root:</p>
+      <code>/sdcard/SYSTEM TOOLKIT - LOGS/SYSTEM TOOLKIT - LOGS.log</code>
+    </div>
+    <div class="row-buttons">
+      <button id="refreshLog" class="primary-btn" data-i18n="refreshLogBtn">Refresh log</button>
+      <button id="copyLog" class="secondary-btn" data-i18n="copyLogBtn">Copy to clipboard</button>
+    </div>
+    <pre id="logView" class="card logbox" data-i18n="loadingLog">Loading…</pre>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button class="tab-btn active" data-tab="debloat">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm-3 6h12l-1 12H7L6 9z"/></svg>
+    <span data-i18n="tabDebloat">Debloat</span>
+  </button>
+  <button class="tab-btn" data-tab="restore">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-2.1-5L14 10h8V2l-3.1 3.1A9 9 0 0 0 13 3z"/></svg>
+    <span data-i18n="tabRestore">Restore</span>
+  </button>
+  <button class="tab-btn" data-tab="otg">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7v4h1v2h-3V5h2l-3-4-3 4h2v8H8v-2.3A2 2 0 1 0 6 10.7V13a2 2 0 0 0 2 2h3v3.3a2 2 0 1 0 2 0V15h3a2 2 0 0 0 2-2v-2h1V7h-4z"/></svg>
+    <span data-i18n="tabOtg">OTG</span>
+  </button>
+  <button class="tab-btn" data-tab="usb">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M8.5 2h7v6h-7V2zm2 1.6v1.6h1.2V3.6h-1.2zm2.8 0v1.6h1.2V3.6h-1.2zM6 9.5h12V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9.5zm6 3.3a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4z"/></svg>
+    <span data-i18n="tabUsb">USB</span>
+  </button>
+  <button class="tab-btn" data-tab="flash">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10v2h-1v4.5l3 4.5v9H5v-9l3-4.5V4H7V2zm3 2v5.2L7.2 13H16.8L14 9.2V4h-4zM7 15v5h10v-5H7z"/></svg>
+    <span data-i18n="tabFlash">Flash</span>
+  </button>
+  <button class="tab-btn" data-tab="term">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v16H3V4zm3.4 3L5 8.4 8.6 12 5 15.6 6.4 17l5-5-5-5zM12 15v2h6v-2h-6z"/></svg>
+    <span data-i18n="tabTerm">Terminal</span>
+  </button>
+  <button class="tab-btn" data-tab="tp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5l13 9.2-5.6 1.1 3.4 6.4-2.6 1.4-3.4-6.4L5 18.3V2.5z"/></svg>
+    <span data-i18n="tabTp">Touchpad</span>
+  </button>
+  <button class="tab-btn" data-tab="dev">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 3v12h10V5H7zm5 14.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>
+    <span data-i18n="tabDev">Device</span>
+  </button>
+  <button class="tab-btn" data-tab="sens">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0-6a10 10 0 0 0-7.1 3l1.4 1.4a8 8 0 0 1 11.4 0L19.1 5A10 10 0 0 0 12 2zM3 12a9 9 0 0 1 .8-3.7l1.8.8A7 7 0 0 0 5 12H3zm16 0a7 7 0 0 0-.6-2.9l1.8-.8A9 9 0 0 1 21 12h-2zM6.3 18.6A8 8 0 0 0 12 21a8 8 0 0 0 5.7-2.4l1.4 1.4A10 10 0 0 1 12 23a10 10 0 0 1-7.1-3l1.4-1.4z"/></svg>
+    <span data-i18n="tabSens">Sensors</span>
+  </button>
+  <button class="tab-btn" data-tab="perf">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+    <span data-i18n="tabPerf">Performance</span>
+  </button>
+  <button class="tab-btn" data-tab="mods">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>
+    <span data-i18n="tabMods">Modules</span>
+  </button>
+  <button class="tab-btn" data-tab="logs">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5V3zm3 4v2h8V7H8zm0 4v2h8v-2H8zm0 4v2h5v-2H8z"/></svg>
+    <span data-i18n="tabLogs">Logs</span>
+  </button>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+<script src="touchpad.js"></script>
+</body>
+</html>

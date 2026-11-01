@@ -1,11 +1,9 @@
 package com.mkvenompro.optimizer.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,16 +22,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mkvenompro.optimizer.core.*
 import com.mkvenompro.optimizer.toolkit.*
+import com.mkvenompro.optimizer.ui.theme.ThemeMode
 
 private enum class Page(val label: String) { HOME("Home"), PERFORMANCE("Performance"), BATTERY("Battery"), APPS("Apps"), TOOLS("Tools"), DEVICE("Device") }
 
 @Composable
-fun OptimizerApp() {
+fun OptimizerApp(themeMode: ThemeMode, onThemeModeChange: (ThemeMode) -> Unit) {
     var page by remember { mutableStateOf(Page.HOME) }
+    var themeMenuExpanded by remember { mutableStateOf(false) }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            NavigationBar(containerColor = Color(0xFF101923)) {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 listOf(Page.HOME, Page.PERFORMANCE, Page.BATTERY, Page.APPS, Page.TOOLS, Page.DEVICE).forEach { item ->
                     NavigationBarItem(
                         selected = page == item, onClick = { page = item },
@@ -52,9 +52,33 @@ fun OptimizerApp() {
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)) {
-            Spacer(Modifier.height(14.dp))
-            Text("MKVENOMPRO", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-            Text("ANDROID OPTIMIZER", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("MKVENOMPRO", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    Text("ANDROID OPTIMIZER", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                }
+                Box {
+                    IconButton(onClick = { themeMenuExpanded = true }) {
+                        Icon(Icons.Default.Palette, contentDescription = "Appearance: ${themeMode.label}")
+                    }
+                    DropdownMenu(expanded = themeMenuExpanded, onDismissRequest = { themeMenuExpanded = false }) {
+                        ThemeMode.values().forEach { mode ->
+                            DropdownMenuItem(
+                                text = { Text(if (themeMode == mode) "✓ ${mode.label}" else mode.label) },
+                                onClick = { onThemeModeChange(mode); themeMenuExpanded = false },
+                                leadingIcon = {
+                                    Icon(when (mode) {
+                                        ThemeMode.SYSTEM -> Icons.Default.SettingsSuggest
+                                        ThemeMode.DARK -> Icons.Default.DarkMode
+                                        ThemeMode.LIGHT -> Icons.Default.LightMode
+                                    }, contentDescription = null)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
             Spacer(Modifier.height(14.dp))
             when(page) {
                 Page.HOME -> HomePage(onNavigate = { page = it })
@@ -232,6 +256,7 @@ private fun DevicePage() {
         items(d.notes) { Text("• $it") }
     }
 }
+
 
 private fun android.graphics.drawable.Drawable.toBitmap(): Bitmap {
     val drawable = mutate()

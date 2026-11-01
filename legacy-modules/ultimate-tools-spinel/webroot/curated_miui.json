@@ -1,0 +1,106 @@
+[
+  {
+    "pkg": "com.miui.analytics",
+    "cat_en": "Analytics/Tracking",
+    "cat_ar": "تتبع/تحليلات",
+    "desc_en": "Sends usage data to Xiaomi",
+    "desc_ar": "إرسال بيانات استخدام للنظام",
+    "default": true
+  },
+  {
+    "pkg": "com.miui.msa.global",
+    "cat_en": "Ads",
+    "cat_ar": "إعلانات",
+    "desc_en": "MSA ad service",
+    "desc_ar": "خدمة إعلانات MSA",
+    "default": true
+  },
+  {
+    "pkg": "com.miui.systemAdSolution",
+    "cat_en": "Ads",
+    "cat_ar": "إعلانات",
+    "desc_en": "Injects ads inside the system",
+    "desc_ar": "حقن إعلانات داخل النظام",
+    "default": true
+  },
+  {
+    "pkg": "com.xiaomi.metoknowledge",
+    "cat_en": "Analytics/Tracking",
+    "cat_ar": "تتبع/تحليلات",
+    "desc_en": "Collects usage behaviour data",
+    "desc_ar": "جمع بيانات سلوك الاستخدام",
+    "default": true
+  },
+  {
+    "pkg": "com.miui.miservice",
+    "cat_en": "Ads",
+    "cat_ar": "إعلانات",
+    "desc_en": "Xiaomi offers/ads service",
+    "desc_ar": "خدمة عروض/إعلانات ميوي",
+    "default": true
+  },
+  {
+    "pkg": "com.miui.cleanmaster",
+    "cat_en": "Duplicate app",
+    "cat_ar": "تطبيقات مكررة",
+    "desc_en": "Cleaner app — this module already covers that",
+    "desc_ar": "منظف بديل عن نفس وظيفة هذه الاضافه",
+    "default": false
+  },
+  {
+    "pkg": "com.miui.cloudbackup",
+    "cat_en": "Cloud",
+    "cat_ar": "سحابة",
+    "desc_en": "Mi Cloud backup — keep if you use it",
+    "desc_ar": "نسخ احتياطي على Mi Cloud — سيبه لو بتستخدمه",
+    "default": false
+  },
+  {
+    "pkg": "com.miui.cloudservice",
+    "cat_en": "Cloud",
+    "cat_ar": "سحابة",
+    "desc_en": "Mi Cloud sync — keep if you use it",
+    "desc_ar": "مزامنة Mi Cloud — سيبه لو بتستخدمه",
+    "default": false
+  },
+  {
+    "pkg": "com.miui.bugreport",
+    "cat_en": "Analytics/Tracking",
+    "cat_ar": "تتبع/تحليلات",
+    "desc_en": "Crash reports sent to Xiaomi",
+    "desc_ar": "تقارير أعطال ترسل لشاومي",
+    "default": true
+  },
+  {
+    "pkg": "com.miui.contentcatcher",
+    "cat_en": "Analytics/Tracking",
+    "cat_ar": "تتبع/تحليلات",
+    "desc_en": "Content collection for suggestions",
+    "desc_ar": "جمع محتوى للاقتراحات",
+    "default": true
+  },
+  {
+    "pkg": "com.mfashiongallery.emag",
+    "cat_en": "Bloat",
+    "cat_ar": "تطبيقات زائدة",
+    "desc_en": "Lock screen wallpaper magazine",
+    "desc_ar": "خلفيات/مجلة الشاشة المقفولة",
+    "default": true
+  },
+  {
+    "pkg": "com.miui.newmidrop",
+    "cat_en": "Bloat",
+    "cat_ar": "تطبيقات زائدة",
+    "desc_en": "Built-in Mi Drop file sharing",
+    "desc_ar": "مشاركة ملفات Mi Drop المدمجة",
+    "default": false
+  },
+  {
+    "pkg": "com.miui.videoplayer",
+    "cat_en": "Duplicate app",
+    "cat_ar": "تطبيقات مكررة",
+    "desc_en": "MIUI video player (if you use another one)",
+    "desc_ar": "مشغل فيديو ميوي (لو بتستخدم تطبيق تاني)",
+    "default": false
+  }
+]

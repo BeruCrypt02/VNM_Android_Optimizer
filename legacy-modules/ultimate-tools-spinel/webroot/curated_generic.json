@@ -1,0 +1,5 @@
+[
+  {"pkg":"com.google.android.apps.tachyon","cat_en":"Duplicate app","cat_ar":"تطبيقات مكررة","desc_en":"Google Meet/Duo — keep if you use it","desc_ar":"جوجل ميت — سيبه لو بتستخدمه","default":false},
+  {"pkg":"com.google.android.videos","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"Google TV/Movies app","desc_ar":"تطبيق Google TV","default":false},
+  {"pkg":"com.google.android.apps.wellbeing","cat_en":"Bloat","cat_ar":"تطبيقات زائدة","desc_en":"Digital Wellbeing — keep if you use screen-time tools","desc_ar":"الرفاهية الرقمية — سيبه لو بتستخدم أدوات وقت الشاشة","default":false}
+]
