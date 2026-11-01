@@ -27,3 +27,19 @@ input[type=text],input[type=search],select,textarea{background:var(--surface-2);
 .tab-btn{flex:0 0 auto;min-width:74px;color:#a08d94;border-top-color:transparent}
 .tab-btn.active{color:#ffd9e6;border-top-color:#ffb0cf;background:linear-gradient(rgba(109,43,75,.55),transparent)}
 .toast{background:#41353a;color:#f1dee4;border-radius:14px}
+
+/* ---------- floating bar (same look as the Heat pages) ---------- */
+body{padding-bottom:120px !important}
+.topbar{position:static !important}
+.fnav{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:0 16px calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.fnav-in{pointer-events:auto;max-width:600px;margin:0 auto;background:#2c2125;border-radius:36px;padding:8px;display:flex;justify-content:space-between;gap:3px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.ftab{flex:1;min-width:0;border:0;background:none;color:#cdbcc3;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:6px;transition:.18s;padding:0}
+.ftab svg{width:24px;height:24px;flex:none}
+.ftab span{display:none;font-size:13.5px;font-weight:500}
+.ftab.active{flex:2.7;background:#6d2b4b;color:#ffd9e6}
+.ftab.active span{display:inline}
+/* the page's own sections become a chip strip under the header */
+.bottom-nav.subnav{position:sticky;top:0;bottom:auto;height:auto;z-index:20;padding:8px 10px;gap:6px;border:0;border-radius:0 0 18px 18px;background:#251a1e;box-shadow:0 2px 8px rgba(0,0,0,.25);margin-bottom:6px}
+.subnav .tab-btn{flex:0 0 auto;min-width:0;flex-direction:row;gap:6px;padding:8px 13px;border:0;margin:0;border-radius:999px;background:#352a2e;color:#cdbcc3;font-size:12.5px}
+.subnav .tab-btn svg{width:17px;height:17px}
+.subnav .tab-btn.active{background:#6d2b4b;color:#ffd9e6}

@@ -170,6 +170,13 @@ textarea:disabled{opacity:.45}
 .tab.active{flex:2.2;background:var(--pricont);color:var(--onpricont)}
 .tab.active span{display:inline}
 
+
+.navin{padding:8px;gap:3px}
+.tab{min-width:0;height:52px;border-radius:26px;gap:6px}
+.tab svg{width:24px;height:24px;flex:none}
+.tab span{font-size:13.5px}
+.tab.active{flex:2.7}
+
 /* ---------- snackbar + dialogs ---------- */
 .snack{position:fixed;left:50%;bottom:calc(170px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);opacity:0;
   background:var(--on);color:#2c1d22;padding:12px 18px;border-radius:14px;font-size:14px;transition:.2s;
@@ -219,7 +226,7 @@ textarea:disabled{opacity:.45}
   <div class="grow">
     <h1>MkVenomPro Optimizer</h1>
     <div class="by">Android Optimizer</div>
-    <div class="hchips"><span class="hchip" data-verlong>Version 1.6</span><span class="hchip">Thermal engine: Yudharn</span><a class="hchip" href="tools.html" style="text-decoration:none">Device Tools &rsaquo;</a><a class="hchip" href="adb.html" style="text-decoration:none">ADB &amp; Fastboot &rsaquo;</a></div>
+    <div class="hchips"><span class="hchip" data-verlong>Version 1.1.0</span></div>
   </div>
   <div class="state idle" id="mstate"><i></i><span>Loading</span></div>
 </div>
@@ -247,14 +254,6 @@ textarea:disabled{opacity:.45}
 
     <div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5v.3"/></svg>
       <div>Nothing runs in the background (only exceptions: the small keepers of <b>Charge limit ~80%</b> and <b>Auto clean app cache</b> while those switches are on). Choices are saved now and applied <b>once at the next boot</b>. Turning a system option off restores its original value on that boot.</div>
-    </div>
-
-    <h2 class="sh">Support</h2>
-    <p class="ssub">The heat &amp; battery engine was written by Yudharn. If it helps you, consider supporting the original author.</p>
-    <div class="group">
-      <div class="item press" data-url="https://sociabuzz.com/yudharn"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z"/></svg></div><div class="txt"><div class="ttl">SociaBuzz</div><div class="desc">Support MkVenomPro Optimizer via SociaBuzz</div></div><svg class="chev2" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></div></div>
-      <div class="item press" data-url="https://ko-fi.com/yudharn"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v2M12 3v2"/></svg></div><div class="txt"><div class="ttl">PayPal</div><div class="desc">Donate with PayPal through Ko-fi</div></div><svg class="chev2" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></div></div>
-      <div class="item press" data-url="https://t.me/ArchivesModules/1476"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2.5v2.5M20.5 14.5v6h-6M17 20.5v-2"/></svg></div><div class="txt"><div class="ttl">QRIS</div><div class="desc">Scan the QRIS code (Indonesian e-wallets and banks)</div></div><svg class="chev2" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></div></div>
     </div>
 
     <h2 class="sh">Quick presets</h2>
@@ -317,15 +316,12 @@ textarea:disabled{opacity:.45}
     <h2 class="sh">About</h2>
     <div class="group">
       <div class="about"><img class="abanner" src="banner.jpg" alt="MkVenomPro Optimizer banner" onerror="this.remove()"><b>MkVenomPro Optimizer <span data-ver>v1.6</span></b>
-        <p>Heat &amp; battery engine by Yudharn &middot; app and device tools by MKVENOM &amp; LEINXCLEARS</p>
+        <p>Heat &amp; battery tuning, device tools, ADB &amp; Fastboot in one app.</p>
         <p>Heat &amp; battery fix for Android. Kernel features support Qualcomm and MediaTek kernels; features a phone does not support are skipped and shown as Unsupported. Tuned and tested on HyperOS. One-shot at boot, no background service (except the opt-in charge-limit and app-cache keepers). Every feature has its own switch and shows exactly what it changes.</p>
         <p style="color:var(--dim)">Font: Google Sans (SIL Open Font License)</p>
       </div>
     </div>
-    <div class="group" style="margin-top:8px">
-      <div class="item press" data-url="https://t.me/ModuleArchives"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L2.8 11.6c-.9.4-.9 1.6.1 1.9l4.6 1.4 1.8 5.5c.3.8 1.3 1 1.9.4l2.6-2.5 4.6 3.4c.7.5 1.7.1 1.9-.7L22.4 5.9c.2-1-.6-1.8-1.4-1.4z"/><path d="M8 14.6l9.5-6.6"/></svg></div><div class="txt"><div class="ttl">Telegram channel</div><div class="desc">@ModuleArchives: updates, changelogs and support</div></div><svg class="chev2" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></div></div>
-    </div>
-  </section>
+    </section>
 </main>
 
 <div class="abar" id="abar" hidden>
@@ -339,7 +335,9 @@ textarea:disabled{opacity:.45}
   <button class="tab" data-page="kernel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3"/></svg><span>Kernel</span></button>
   <button class="tab" data-page="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h9M17 6.5h3M4 12h3M11 12h9M4 17.5h11M19 17.5h1"/><circle cx="15" cy="6.5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17.5" r="2"/></svg><span>System</span></button>
   <button class="tab" data-page="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M12 8.5v7M8.5 12h7"/></svg><span>More</span></button>
-  <button class="tab" data-page="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Tools</span></button>
+  <button class="tab" data-page="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Config</span></button>
+  <button class="tab" data-href="tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.4 2.4-2.1-.5-.5-2.1z"/></svg><span>Device</span></button>
+  <button class="tab" data-href="adb.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7.5 10l3 2.5-3 2.5M12.5 15h4"/></svg><span>ADB</span></button>
 </div></nav>
 
 <div class="snack" id="snack"></div>
@@ -1771,8 +1769,16 @@ textarea:disabled{opacity:.45}
     window.scrollTo(0, 0);
   }
   document.querySelectorAll('.tab').forEach(function (t) {
-    t.addEventListener('click', function () { showPage(t.getAttribute('data-page')); });
+    t.addEventListener('click', function () {
+      var h = t.getAttribute('data-href');
+      if (h) { location.replace(h); return; }
+      showPage(t.getAttribute('data-page'));
+    });
   });
+  (function () {
+    var h = (location.hash || '').slice(1);
+    if (['home', 'kernel', 'system', 'more', 'tools'].indexOf(h) >= 0) showPage(h);
+  })();
 
   /* top-right module state, like the status pill in the reference design */
   function updateState() {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html data-nav="adb" lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="theme.css">
 <style>
-  body{padding-bottom:calc(var(--nav-h) + 24px)}
+  
   main{max-width:760px;margin:0 auto;padding:12px 14px}
   .tab{display:none}.tab.active{display:block}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -39,11 +39,11 @@
       <span class="brand-sub">Phone = host &middot; target over OTG</span>
     </div>
   </div>
-  <div class="topbar-right">
-    <a class="lang-btn" href="index.html" style="text-decoration:none">Heat</a>
-    <a class="lang-btn" href="tools.html" style="text-decoration:none">Tools</a>
-  </div>
 </header>
+<nav class="bottom-nav subnav">
+  <button class="tab-btn active" data-tab="adb"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H4zM8 19h8v-2H8z"/></svg><span>ADB</span></button>
+  <button class="tab-btn" data-tab="fb"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg><span>Fastboot</span></button>
+</nav>
 
 <main>
   <div class="card">
@@ -108,10 +108,7 @@
   </div>
 </main>
 
-<nav class="bottom-nav">
-  <button class="tab-btn active" data-tab="adb"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H4zM8 19h8v-2H8z"/></svg><span>ADB</span></button>
-  <button class="tab-btn" data-tab="fb"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg><span>Fastboot</span></button>
-</nav>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -339,5 +336,6 @@
   poll(); setInterval(poll, 2000);
 })();
 </script>
+<script src="fnav.js"></script>
 </body>
 </html>

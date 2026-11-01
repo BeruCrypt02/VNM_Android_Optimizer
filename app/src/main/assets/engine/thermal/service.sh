@@ -110,7 +110,7 @@ _f=$(grep -c '=failed|' "$HC_STATUS")
 _o=$(grep -c '=off|' "$HC_STATUS")
 log "done: $_a applied, $_p partial, $_s skipped, $_f failed, $_o off"
 
-_desc="Heat and battery fix for Android - $(hc_soc_label) (one-shot at boot$(on charge_limit && echo ", charge-limit keeper running")). Last boot: $_a applied, $_p partial, $_s unsupported, $_f failed, $_o off. Configure in WebUI. Channel Telegram: @ModuleArchives."
+_desc="Heat and battery fix for Android - $(hc_soc_label) (one-shot at boot$(on charge_limit && echo ", charge-limit keeper running")). Last boot: $_a applied, $_p partial, $_s unsupported, $_f failed, $_o off. Configure in WebUI."
 sed -i "s|^description=.*|description=$_desc|" "$MODDIR/module.prop"
 
 exit 0

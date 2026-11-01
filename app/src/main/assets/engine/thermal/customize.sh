@@ -45,7 +45,7 @@ else
   ui_print "! Unknown SoC: most kernel features will"
   ui_print "! show Unsupported, system features still work."
 fi
-sed -i "s|^description=.*|description=Heat and battery fix for Android - ${_lbl:-Device Qualcomm/MediaTek} (one-shot at boot, only tiny opt-in keepers). Configure in WebUI, then reboot. Channel Telegram: @ModuleArchives.|" "$MODPATH/module.prop"
+sed -i "s|^description=.*|description=Heat and battery fix for Android - ${_lbl:-Device Qualcomm/MediaTek} (one-shot at boot, only tiny opt-in keepers). Configure in WebUI, then reboot.|" "$MODPATH/module.prop"
 
 [ "$API" -lt 30 ] && abort "! Android 11 or newer is required"
 
