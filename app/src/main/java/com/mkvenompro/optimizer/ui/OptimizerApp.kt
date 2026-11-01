@@ -2,7 +2,10 @@ package com.mkvenompro.optimizer.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -139,7 +143,7 @@ private fun AppsPage() {
                     val launch = context.packageManager.getLaunchIntentForPackage(app.packageName)
                     if (launch != null) context.startActivity(launch)
                 }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    androidx.compose.foundation.Image(app.icon, null, Modifier.size(42.dp))
+                    Image(bitmap = app.icon.toBitmap().asImageBitmap(), contentDescription = app.label, modifier = Modifier.size(42.dp))
                     Column(Modifier.weight(1f).padding(start = 10.dp)) {
                         Text(app.label, fontWeight = FontWeight.SemiBold)
                         Text(app.packageName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -227,4 +231,15 @@ private fun DevicePage() {
         item { Text("DIAGNOSTIC NOTES", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) }
         items(d.notes) { Text("• $it") }
     }
+}
+
+private fun android.graphics.drawable.Drawable.toBitmap(): Bitmap {
+    val drawable = mutate()
+    val width = intrinsicWidth.coerceAtLeast(1)
+    val height = intrinsicHeight.coerceAtLeast(1)
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, width, height)
+    drawable.draw(canvas)
+    return bitmap
 }
