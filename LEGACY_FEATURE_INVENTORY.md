@@ -1,14 +1,17 @@
-# Legacy source preservation inventory
+# Clean-room migration map
 
-The original ZIP archives are preserved byte-for-byte in `legacy-modules/source-archives/`.
-Extracted copies are provided beside them for review and porting. Their presence does not mean their scripts have been integrated into the Android application.
+The source archives were reviewed outside this public project. No original module archive, extracted script, executable payload, or original WebUI asset is shipped here.
 
-| Source archive | Extracted review folder | Role |
-|---|---|---|
-| `MkVenomPro_android_optimizer_v1.1.zip` | `android-optimizer-v1.1/` | App/performance profiles, package management and restore scripts, WebUI assets |
-| `HyperCool_v1.6.zip` | `hypercool-v1.6/` | Performance/battery profile scripts, guards, configuration, restore and WebUI assets |
-| `Ultimate_Tools_Spinel.zip` | `ultimate-tools-spinel/` | Device/ROM inspection, governors, sensors, USB/OTG, package tools and other control scripts |
+## Reference feature families mapped for independent implementation
 
-## Porting rule
+- Optimizer v1.1: package catalog/labels, package disable and restore, debloat review, performance profiles, persistent profile guard.
+- HyperCool v1.6: performance and battery profiles, charge telemetry/control, thermal guard, configuration, cache/database maintenance, restore.
+- Ultimate Tools Spinel: CPU/GPU tuning, I/O/memory tuning, SELinux, ROM/device profile spoofing, ReZygisk, MiTool, FOD diagnostics, sensors, package operations, charging, device/ROM information.
 
-Do not delete or rewrite a legacy feature merely because it is not yet represented in Compose. First map it to a feature entry, document its permission and device requirements, then implement and test the Android-side equivalent. Features previously explicitly excluded by the project owner must remain excluded from the app UI.
+## Current migration state
+
+Implemented in this revision: dashboard redesign, root shell execution, CPU cpufreq governor discovery and reversible governor writes, current-user package disable/enable/uninstall, battery snapshot, SELinux status readout.
+
+Pending: USB ADB host protocol, Wireless Debugging pairing/session, APK/split APK deployment, file transfer, logcat, screenshots, process monitor, GPU/frequency/I/O/memory tuning, charging controls, SELinux mode controls, spoof profiles, ReZygisk/MiTool integrations, FOD control, sensor diagnostics, curated debloat catalog, package backup/restore, cache/database maintenance.
+
+Only OTG Fix and Brightness Fix are excluded. Every other feature family remains in scope.

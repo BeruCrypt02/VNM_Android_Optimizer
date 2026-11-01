@@ -1,47 +1,36 @@
 # Clean-room feature audit
 
-This project is an independent Android application. The three supplied archives were reviewed as behavioral/feature references only. Their source files, scripts, WebUI bundles, graphics, and archives are not included in this repository.
+This public source contains independent Android-side implementations. It does not contain the reference ZIPs, extracted module folders, binaries, WebUI assets, or copied shell scripts.
 
-## Feature families identified during review
+## Scope retained
 
-- Device/ROM inspection: SoC and ROM identification, kernel and sensor visibility, root capability detection.
-- Performance diagnostics: CPU policy discovery, CPU/GPU frequency interface discovery, scheduler visibility, I/O scheduler visibility, memory and thermal reporting.
-- Battery and background behavior: charge/health reporting, idle and Doze concepts, protected-app policy concepts, app standby and background restriction concepts.
-- Application management: package inventory, curated package groups, safe exclusions, disable/restore workflows, backup/restore concepts.
-- Maintenance and diagnostics: logs, storage/cache reporting, app/process diagnostics, configuration backup and restoration.
-- Device connection and tools: ADB host/target workflow, wireless pairing, shell, deployment, file transfer, logcat, screenshots, and Fastboot capability discovery.
+Only **OTG Fix** and **Brightness Fix** are excluded from the app scope. The following remain requested and must not be silently dropped:
 
-## Implementation truth table
+- Android Optimizer v1.1: package inventory and curated debloat workflow, package backup/restore, performance profiles, persistent profile guard, package labels.
+- HyperCool v1.6: performance/battery profiles, charge telemetry and supported charge controls, thermal guard/monitoring, cache/database maintenance with explicit review, restore path, configuration.
+- Ultimate Tools Spinel: CPU/GPU governors and frequency interfaces, I/O scheduler, memory controls, SELinux, ROM/device spoof profiles, ReZygisk and MiTool integration/compatibility, FOD diagnostics, sensors, package controls, charging controls, device/ROM diagnostics, log/process tools.
+- Additional app requirements: ADB Host USB transport, Wireless Debugging pairing/connect, shell, install/split APK, app management, file transfer, logcat, screenshot, process and device information.
 
-| Capability | Current source status | Notes |
-|---|---|---|
-| Compose dashboard and floating capsule navigation | Implemented | UI navigation only |
-| Dark/light/system theme persisted before Compose content | Implemented | Existing behavior retained |
-| Device/kernel interface inspection | Implemented, read-only | OEM/kernel exposure varies |
-| Battery service snapshot | Implemented, read-only | Not a battery-capacity estimator |
-| Installed app inventory and launch | Implemented | No disable/uninstall action |
-| USB host capability discovery | Implemented | Not USB ADB transport |
-| Root availability detection | Implemented | Detection only; no privileged operation |
-| ADB command reference | Implemented | Display only, not an ADB session |
-| Fastboot command reference | Implemented | Display only, not a Fastboot session |
-| Wireless ADB pairing/connect | Not implemented | Requires a separate ADB network transport and pairing flow |
-| USB ADB host transport | Not implemented | USB Host capability is not an ADB protocol implementation |
-| Interactive shell/custom command execution | Not implemented | No command-execution UI is exposed |
-| APK/split APK deployment | Not implemented | No deployment flow is exposed |
-| Remote app enable/disable/uninstall/restore | Not implemented | No package-control backend is exposed |
-| File transfer, Logcat, screenshot capture | Not implemented | No connected-target session exists |
-| Shizuku integration | Not implemented | No Shizuku dependency or permission flow |
-| CPU/GPU governor/frequency writes | Not implemented | Read-only discovery only |
-| Battery/Doze/app-standby tuning | Not implemented | No system values are modified |
-| Backup/restore and debloat transaction engine | Not implemented | No package changes are made |
-| Sensor/camera/fingerprint diagnostics | Not implemented | Not yet implemented |
+## Implemented in this source revision
 
-## Safety and compatibility rules
+- New Compose dashboard with refreshed visual hierarchy, rounded cards, persistent theme selection, and five-section bottom navigation.
+- CPU policy discovery and governor selection for exposed cpufreq policy nodes.
+- Root command execution isolated on IO dispatcher.
+- Original governor values are backed up before a change; a restore action is provided.
+- Root-gated package disable/enable/uninstall-for-user actions with package-name validation.
+- Battery status and health snapshot using Android BatteryManager.
+- SELinux enforcement state readout.
+- Explicit feature inventory and honest unavailable status for ADB transports.
 
-- The phone running this app is the ADB Host/controller; a separately connected Android device is the Target.
-- USB Host detection is not represented as USB ADB support. USB ADB and Wireless ADB require separate transports.
-- Any future privileged operation must show target, exact changes, permission state, confirmation, result, and a verifiable restore path.
-- Unsupported kernel nodes and OEM-specific features must be reported as unavailable; never infer support from a chipset name alone.
-- The requested feature scope includes Fast Charge Control, SELinux mode management, Game Spoofer, ReZygisk-related management, MiTool-related tools, FOD diagnostics/fixes, and database maintenance. These are not excluded; each remains unimplemented until its own capability checks, compatibility handling, confirmation, and recovery behavior are implemented and tested.
-- SELinux-related controls must clearly explain the security impact, require explicit user confirmation and suitable privilege, and must never silently persist a weaker policy.
-- Explicitly excluded by the user: OTG/USB fixes and brightness fixes/services only.
+## Not implemented / not verified yet
+
+ADB USB protocol transport, Wireless Debugging pairing and ADB protocol session, APK/split APK install workflow, file transfer, logcat capture/export, screenshot capture, process monitor, full CPU/GPU frequency and I/O/memory profile controls, charge-control nodes, SELinux mode changes, spoofing, ReZygisk/MiTool integration, FOD control, sensor/camera/fingerprint diagnostics, curated debloat catalog and backup/restore archive workflow, database cleanup, and complete device-specific validation.
+
+These are retained in scope. Their absence is not represented as a working button. Device-specific privileged operations require capability detection, explicit confirmation, backups, and post-write verification before being marked implemented.
+
+## Exclusions
+
+- OTG Fix
+- Brightness Fix
+
+No other requested feature is excluded by this audit.
