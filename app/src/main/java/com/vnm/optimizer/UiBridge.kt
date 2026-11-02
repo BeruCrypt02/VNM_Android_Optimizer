@@ -1,4 +1,4 @@
-package com.mkvenompro.optimizer
+package com.vnm.optimizer
 
 import android.app.WallpaperManager
 import android.content.Context

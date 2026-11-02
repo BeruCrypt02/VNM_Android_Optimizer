@@ -7,15 +7,15 @@ val ksPath: String? = System.getenv("KEYSTORE_FILE")
 val hasKeystore = ksPath != null && file(ksPath).exists()
 
 android {
-    namespace = "com.mkvenompro.optimizer"
+    namespace = "com.vnm.optimizer"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.mkvenompro.optimizer"
+        applicationId = "com.vnm.optimizer"
         minSdk = 26
         targetSdk = 34
-        versionCode = 6
-        versionName = "1.4.0"
+        versionCode = 7
+        versionName = "2.0.0"
     }
 
     signingConfigs {

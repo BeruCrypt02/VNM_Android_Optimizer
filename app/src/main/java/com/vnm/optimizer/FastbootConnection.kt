@@ -1,4 +1,4 @@
-package com.mkvenompro.optimizer
+package com.vnm.optimizer
 
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice

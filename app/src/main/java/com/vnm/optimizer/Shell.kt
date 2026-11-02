@@ -1,4 +1,4 @@
-package com.mkvenompro.optimizer
+package com.vnm.optimizer
 
 import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku

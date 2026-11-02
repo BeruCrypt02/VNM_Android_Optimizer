@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "MkVenomPro_Android_Optimizer"
+rootProject.name = "VNM_Android_Optimizer"
 include(":app")
