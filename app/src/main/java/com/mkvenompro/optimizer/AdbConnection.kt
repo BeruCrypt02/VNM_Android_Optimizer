@@ -159,4 +159,86 @@ class AdbConnection(
         }
         return out.toString("UTF-8")
     }
+
+    /**
+     * Real `adb sideload` (service "sideload-host"): the target (recovery in "Apply update from ADB",
+     * or a device already in sideload mode) asks for 64 KB blocks of the zip by number; we answer
+     * each request with the data, and it ends the transfer with "DONEDONE".
+     */
+    @Synchronized
+    fun sideload(fileSize: Long, ch: java.nio.channels.FileChannel, onProgress: ((Int) -> Unit)? = null): String {
+        val block = 65536
+        val local = nextId++
+        send(A_OPEN, local, 0, "sideload-host:$fileSize:$block\u0000".toByteArray())
+        var remote = 0
+        while (true) {
+            val m = read(15000) ?: throw java.io.IOException("No answer - is the target in sideload mode (recovery > Apply update from ADB)?")
+            if (m.cmd == A_OKAY && m.arg1 == local) { remote = m.arg0; break }
+            if (m.cmd == A_CLSE) return "The target refused sideload. Put it in recovery > Apply update from ADB (or run: adb reboot sideload)."
+        }
+        val pending = ByteArrayOutputStream()
+        val buf = java.nio.ByteBuffer.allocate(block)
+        var lastPct = -1
+
+        fun readMsg(): Msg {
+            val t0 = System.currentTimeMillis()
+            while (true) {
+                val m = read(30000)
+                if (m != null) return m
+                // a plain timeout (target busy installing) is fine, a fast failure means the cable is gone
+                if (System.currentTimeMillis() - t0 < 20000) throw java.io.IOException("Target disconnected")
+                if (System.currentTimeMillis() - t0 > 15 * 60 * 1000L) throw java.io.IOException("Timed out waiting for the target")
+            }
+        }
+        fun waitOkay() {
+            while (true) {
+                val m = readMsg()
+                when {
+                    m.cmd == A_OKAY && m.arg1 == local -> return
+                    m.cmd == A_WRTE -> { send(A_OKAY, local, remote); pending.write(m.data) }
+                    m.cmd == A_CLSE -> throw java.io.IOException("Closed by the target")
+                }
+            }
+        }
+        fun sendBlock(n: Long) {
+            val offset = n * block
+            if (offset >= fileSize) throw java.io.IOException("Target asked for block $n outside the file")
+            val len = minOf(block.toLong(), fileSize - offset).toInt()
+            buf.clear(); buf.limit(len)
+            var pos = offset
+            while (buf.hasRemaining()) {
+                val r = ch.read(buf, pos)
+                if (r <= 0) throw java.io.IOException("Cannot read the file at $pos")
+                pos += r
+            }
+            val data = buf.array()
+            var off = 0
+            while (off < len) {
+                val c = minOf(maxData, len - off)
+                send(A_WRTE, local, remote, data.copyOfRange(off, off + c))
+                off += c
+                waitOkay()
+            }
+            val pct = (((offset + len) * 100) / fileSize).toInt()
+            if (pct != lastPct) { lastPct = pct; onProgress?.invoke(pct) }
+        }
+
+        while (true) {
+            val m = readMsg()
+            when (m.cmd) {
+                A_WRTE -> { send(A_OKAY, local, remote); pending.write(m.data) }
+                A_CLSE -> return if (lastPct >= 99) "Sideload finished." else "Closed by the target at $lastPct %."
+                else -> continue
+            }
+            while (pending.size() >= 8) {
+                val all = pending.toByteArray()
+                val head = String(all, 0, 8, Charsets.ISO_8859_1)
+                pending.reset(); pending.write(all, 8, all.size - 8)
+                if (head == "DONEDONE") { onProgress?.invoke(100); return "Sideload finished (DONEDONE)." }
+                if (head == "FAILFAIL") return "The target reported a failure."
+                val n = head.trim().toLongOrNull() ?: throw java.io.IOException("Unexpected request \"$head\"")
+                sendBlock(n)
+            }
+        }
+    }
 }

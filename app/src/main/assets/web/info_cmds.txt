@@ -1,0 +1,502 @@
+#### pre
+r(){ printf '%s|%s\n' "$1" "$2"; }
+h(){ printf '## %s\n' "$1"; }
+bar(){ printf '!B|%s|%s|%s\n' "$1" "$2" "$3"; }
+rd(){ [ -r "$1" ] && head -n 1 "$1" 2>/dev/null | tr -d '\r'; }
+rr(){ _v=$(rd "$2"); [ -n "$_v" ] && r "$1" "$_v$3"; }
+gp(){ getprop "$1" 2>/dev/null; }
+rp(){ _v=$(gp "$2"); [ -n "$_v" ] && r "$1" "$_v"; }
+pp(){ getprop 2>/dev/null | grep -iE "$1" | sed 's/^\[\(.*\)\]: \[\(.*\)\]$/\1|\2/' | head -n "${2:-40}"; }
+num(){ case "$1" in ''|*[!0-9]*) return 1;; esac; return 0; }
+kb(){ num "$1" || { echo "$1"; return; }; if [ "$1" -ge 1048576 ]; then echo "$(($1/1048576)).$((($1%1048576)*10/1048576)) GB"; elif [ "$1" -ge 1024 ]; then echo "$(($1/1024)) MB"; else echo "$1 kB"; fi; }
+hb(){ num "$1" || { echo "$1"; return; }; if [ "$1" -ge 1073741824 ]; then echo "$(($1/1073741824)).$((($1%1073741824)*100/1073741824)) GB"; elif [ "$1" -ge 1048576 ]; then echo "$(($1/1048576)) MB"; elif [ "$1" -ge 1024 ]; then echo "$(($1/1024)) KB"; else echo "$1 B"; fi; }
+mhz(){ num "$1" || { echo "-"; return; }; echo "$(($1/1000)) MHz"; }
+tc(){ num "$1" || { echo "$1"; return; }; if [ "$1" -ge 1000 ]; then echo "$(($1/1000)).$((($1%1000)/100)) °C"; else echo "$1 °C"; fi; }
+dc(){ _o=$(printf '%s\n' "$DM" | grep -oiE "$2" | tr 'A-Z' 'a-z' | sort -u | head -n 12 | tr '\n' ' '); [ -n "$_o" ] && r "$1" "$_o"; }
+#### dashboard
+h Device
+n=$(gp ro.product.marketname); [ -z "$n" ] && n=$(gp ro.product.model); r Device "$n"
+r Model "$(gp ro.product.model)"
+r Manufacturer "$(gp ro.product.manufacturer)"
+r Codename "$(gp ro.product.device)"
+r Android "$(gp ro.build.version.release) (API $(gp ro.build.version.sdk))"
+r ROM "$(gp ro.build.display.id)"
+r Kernel "$(uname -r)"
+s=$(cut -d. -f1 /proc/uptime); num "$s" && r Uptime "$((s/86400))d $((s%86400/3600))h $((s%3600/60))m"
+r Root "$([ "$(id -u)" = 0 ] && echo yes || echo no)"
+h Processor
+r SoC "$(gp ro.soc.manufacturer) $(gp ro.soc.model)"
+r Platform "$(gp ro.board.platform)"
+r Cores "$(grep -c '^processor' /proc/cpuinfo)"
+mxf=0; for p in /sys/devices/system/cpu/cpufreq/policy*; do f=$(rd $p/cpuinfo_max_freq); num "$f" && [ "$f" -gt "$mxf" ] && mxf=$f; done
+[ "$mxf" -gt 0 ] && r "Max frequency" "$(mhz $mxf)"
+h Usage
+t=$(sed -n 's/^MemTotal: *\([0-9]*\).*/\1/p' /proc/meminfo); a=$(sed -n 's/^MemAvailable: *\([0-9]*\).*/\1/p' /proc/meminfo)
+if num "$t" && num "$a" && [ "$t" -gt 0 ]; then u=$((t-a)); bar RAM $((u*100/t)) "$(kb $u) / $(kb $t)"; fi
+st=$(sed -n 's/^SwapTotal: *\([0-9]*\).*/\1/p' /proc/meminfo); sf=$(sed -n 's/^SwapFree: *\([0-9]*\).*/\1/p' /proc/meminfo)
+if num "$st" && [ "$st" -gt 0 ]; then u=$((st-sf)); bar "Swap / zRAM" $((u*100/st)) "$(kb $u) / $(kb $st)"; fi
+set -- $(df -k /data 2>/dev/null | tail -n 1); if num "$2" && [ "$2" -gt 0 ]; then bar "Storage (/data)" $(($3*100/$2)) "$(kb $3) / $(kb $2)"; fi
+cp=$(rd /sys/class/power_supply/battery/capacity); bt=$(rd /sys/class/power_supply/battery/temp)
+if num "$cp"; then if num "$bt"; then bar Battery "$cp" "$cp %  -  $((bt/10)).$((bt%10)) °C"; else bar Battery "$cp" "$cp %"; fi; fi
+h Display
+r Size "$(wm size 2>/dev/null | sed 's/^[^:]*: *//' | tr '\n' ' ')"
+r Density "$(wm density 2>/dev/null | sed 's/^[^:]*: *//' | tr '\n' ' ')"
+#### cpu
+h Processor
+r SoC "$(gp ro.soc.manufacturer) $(gp ro.soc.model)"
+r Platform "$(gp ro.board.platform)"
+case "$(gp ro.board.platform)" in
+ msm8953) g="Snapdragon 625/626";; msm8937) g="Snapdragon 430/435";; sdm660) g="Snapdragon 660";; sdm710) g="Snapdragon 710";;
+ sdm845) g="Snapdragon 845";; msmnile) g="Snapdragon 855/860";; kona) g="Snapdragon 865/870";; lahaina) g="Snapdragon 888";;
+ taro) g="Snapdragon 8 Gen 1";; cape) g="Snapdragon 8+ Gen 1";; kalama) g="Snapdragon 8 Gen 2";; pineapple) g="Snapdragon 8 Gen 3";; sun) g="Snapdragon 8 Elite";;
+ sm6150) g="Snapdragon 675/730";; atoll) g="Snapdragon 720G/732G";; lito) g="Snapdragon 765/768G";; bengal) g="Snapdragon 460/662/680";; holi) g="Snapdragon 480/695";; trinket) g="Snapdragon 665/690";;
+ crow) g="Snapdragon 7+ Gen 2";; parrot) g="Snapdragon 7 Gen 1/778G";; *) g="";;
+esac
+[ -n "$g" ] && r "Codename match" "$g"
+hw=$(sed -n 's/^Hardware[[:space:]]*: *//p' /proc/cpuinfo | head -n 1); [ -n "$hw" ] && r Hardware "$hw"
+r Architecture "$(uname -m)"
+rp "ABI list" ro.product.cpu.abilist
+r Cores "$(grep -c '^processor' /proc/cpuinfo)"
+rr Online /sys/devices/system/cpu/online
+rr Possible /sys/devices/system/cpu/possible
+r "CPU features" "$(sed -n 's/^Features[[:space:]]*: *//p' /proc/cpuinfo | head -n 1)"
+r BogoMIPS "$(sed -n 's/^BogoMIPS[[:space:]]*: *//p' /proc/cpuinfo | head -n 1)"
+h "Core types"
+imp=$(sed -n 's/^CPU implementer[[:space:]]*: *//p' /proc/cpuinfo | head -n 1)
+i=0
+for p in $(sed -n 's/^CPU part[[:space:]]*: *//p' /proc/cpuinfo); do
+ m=""
+ if [ "$imp" = "0x41" ]; then
+  case $p in 0xd03) m="Cortex-A53";; 0xd04) m="Cortex-A35";; 0xd05) m="Cortex-A55";; 0xd07) m="Cortex-A57";; 0xd08) m="Cortex-A72";; 0xd09) m="Cortex-A73";; 0xd0a) m="Cortex-A75";; 0xd0b) m="Cortex-A76";; 0xd0c) m="Neoverse-N1";; 0xd0d) m="Cortex-A77";; 0xd40) m="Neoverse-V1";; 0xd41) m="Cortex-A78";; 0xd44) m="Cortex-X1";; 0xd46) m="Cortex-A510";; 0xd47) m="Cortex-A710";; 0xd48) m="Cortex-X2";; 0xd4a) m="Neoverse-E1";; 0xd4b) m="Cortex-A78C";; 0xd4d) m="Cortex-A715";; 0xd4e) m="Cortex-X3";; 0xd80) m="Cortex-A520";; 0xd81) m="Cortex-A720";; 0xd82) m="Cortex-X4";; 0xd84) m="Neoverse-V3";; 0xd85) m="Cortex-X925";; 0xd87) m="Cortex-A725";; esac
+ elif [ "$imp" = "0x51" ]; then m="Qualcomm Kryo/Oryon"; fi
+ r "cpu$i" "${m:-unknown} ($imp/$p)"; i=$((i+1))
+done
+h Frequencies
+for p in /sys/devices/system/cpu/cpufreq/policy*; do
+ [ -d "$p" ] || continue
+ r "${p##*/}" "cpus $(rd $p/related_cpus)"
+ r "  range" "$(mhz $(rd $p/cpuinfo_min_freq)) - $(mhz $(rd $p/cpuinfo_max_freq))"
+ r "  current" "$(mhz $(rd $p/scaling_cur_freq))"
+ r "  limits" "$(mhz $(rd $p/scaling_min_freq)) - $(mhz $(rd $p/scaling_max_freq))"
+ rr "  governor" $p/scaling_governor
+ rr "  governors" $p/scaling_available_governors
+ fr=$(rd $p/scaling_available_frequencies | tr ' ' '\n' | sed -n 's/000$//p' | tr '\n' ' '); [ -n "$fr" ] && r "  steps (MHz)" "$fr"
+done
+for p in /sys/devices/system/cpu/cpufreq/policy*; do
+ f=$p/stats/time_in_state; [ -r "$f" ] || continue
+ h "Time in state ${p##*/}"
+ while read -r fr t; do num "$fr" && num "$t" && r "$((fr/1000)) MHz" "$((t/100)) s"; done < "$f"
+done
+h "Usage (1 s sample)"
+a=$(head -n 1 /proc/stat); sleep 1; b=$(head -n 1 /proc/stat)
+set -- $a; t1=$(($2+$3+$4+$5+$6+$7+$8)); i1=$(($5+$6)); set -- $b; t2=$(($2+$3+$4+$5+$6+$7+$8)); i2=$(($5+$6))
+dt=$((t2-t1)); [ "$dt" -gt 0 ] && bar "CPU total" $(((dt-(i2-i1))*100/dt)) "$(((dt-(i2-i1))*100/dt)) %"
+r "Load average" "$(cut -d' ' -f1-3 /proc/loadavg)"
+#### gpu
+DM=$(dumpsys SurfaceFlinger 2>/dev/null | grep -m 3 -iE 'GLES|Vulkan')
+h Renderer
+[ -n "$DM" ] && printf '%s\n' "$DM" | while read -r l; do r "SurfaceFlinger" "$l"; done
+rp "OpenGL ES (hex)" ro.opengles.version
+v=$(gp ro.opengles.version); num "$v" && r "OpenGL ES" "$((v/65536)).$((v%65536))"
+rp "Vulkan HAL" ro.hardware.vulkan
+rp "EGL HAL" ro.hardware.egl
+rp "Vulkan level" ro.hwui.use_vulkan
+rp "HWUI renderer" debug.hwui.renderer
+rp "Wide colour" ro.surface_flinger.has_wide_color_display
+rp "HDR display" ro.surface_flinger.has_HDR_display
+pm list features 2>/dev/null | grep -iE 'vulkan|opengles|gles' | sed 's/^feature://' | while read -r f; do r Feature "$f"; done
+h "Adreno (kgsl)"
+k=/sys/class/kgsl/kgsl-3d0
+if [ -d $k ]; then
+ rr Model $k/gpu_model
+ r "Current clock" "$(mhz $(( $(rd $k/gpuclk) / 1000 )))"
+ rr "Max clock (Hz)" $k/max_gpuclk
+ rr "Load" $k/gpu_busy_percentage
+ rr "Idle timer (ms)" $k/idle_timer
+ rr "Available freqs" $k/gpu_available_frequencies
+ rr "Governor" $k/devfreq/governor
+ rr "Thermal level" $k/thermal_pwrlevel
+ rr "Throttling" $k/throttling
+fi
+h "Mali / generic devfreq"
+for d in /sys/class/devfreq/*; do
+ n=${d##*/}
+ case "$n" in *gpu*|*mali*|*kgsl*) ;; *) continue;; esac
+ r "$n" "cur $(rd $d/cur_freq)  min $(rd $d/min_freq)  max $(rd $d/max_freq)  gov $(rd $d/governor)"
+ rr "  available" $d/available_frequencies
+done
+h "MediaTek GPU"
+for f in /sys/kernel/gpu/gpu_clock /sys/kernel/gpu/gpu_model /sys/kernel/gpu/gpu_governor /sys/kernel/gpu/gpu_busy /sys/kernel/gpu/gpu_utilization /sys/kernel/ged/hal/current_freq /sys/kernel/ged/hal/gpu_utilization /proc/gpufreq/gpufreq_var_dump; do
+ [ -r "$f" ] && r "${f#/sys/kernel/}" "$(head -n 3 $f | tr '\n' ' ' | cut -c1-200)"
+done
+DM=$(dmesg 2>/dev/null)
+h "Detected in kernel log"
+dc "GPU" 'adreno[ _-]?[0-9]+|mali[ _-]?[a-z0-9]+|powervr[ a-z0-9_-]*|immortalis[ _-]?[a-z0-9]+'
+#### display
+h Screen
+r Size "$(wm size 2>/dev/null | sed 's/^[^:]*: *//' | tr '\n' ' ')"
+r Density "$(wm density 2>/dev/null | sed 's/^[^:]*: *//' | tr '\n' ' ')"
+d=$(dumpsys display 2>/dev/null)
+printf '%s\n' "$d" | grep -oE 'width=[0-9]+, height=[0-9]+, fps=[0-9.]+' | sort -u | sed 's/width=\([0-9]*\), height=\([0-9]*\), fps=\([0-9.]*\)/\1x\2 @ \3 Hz/' | while read -r l; do r Mode "$l"; done
+x=$(printf '%s\n' "$d" | grep -oE 'mSupportedHdrTypes=\[[^]]*\]|supportedHdrTypes=\[[^]]*\]|HdrCapabilities[^,]*' | sort -u | head -n 3 | tr '\n' ' '); [ -n "$x" ] && r HDR "$x"
+x=$(printf '%s\n' "$d" | grep -oE 'mSupportedColorModes=\[[^]]*\]|supportedColorModes=\[[^]]*\]' | sort -u | head -n 1); [ -n "$x" ] && r "Colour modes" "$x"
+r "Brightness (0-255)" "$(settings get system screen_brightness 2>/dev/null)"
+for b in /sys/class/backlight/*; do [ -d "$b" ] && r "backlight ${b##*/}" "$(rd $b/brightness) / $(rd $b/max_brightness)"; done
+h Panel
+tr ' ' '\n' < /proc/cmdline | grep -iE 'panel|lcd|dsi|display' | while read -r l; do r Cmdline "$l"; done
+for f in /sys/class/mi_display/disp-DSI-0/panel_info /sys/class/mi_display/disp-DSI-0/panel_id /sys/class/mi_display/disp-DSI-0/disp_param /sys/class/graphics/fb0/msm_fb_panel_info /sys/class/graphics/fb0/modes /sys/class/graphics/fb0/virtual_size /sys/class/graphics/fb0/name /proc/lcm_info /proc/lcd_info /sys/devices/virtual/graphics/fbcon/rotate; do
+ [ -r "$f" ] && r "${f#/sys/}" "$(head -c 300 $f | tr '\n' ' ')"
+done
+DM=$(dmesg 2>/dev/null)
+dc "LCD driver (kernel log)" 'panel[_-][a-z0-9_-]+|lcm[_-][a-z0-9_-]+|nt3[0-9]{4}|td4[0-9]{3}|rm69[0-9]{3}|hx83[0-9]{3}|s6e[0-9a-z]+|ea[0-9]{4}[a-z]*|ili9[0-9]{3}|ft8[0-9]{3}'
+rp "Refresh rate prop" ro.surface_flinger.max_frame_buffer_acquired_buffers
+rp "Idle fps" ro.vendor.display.idle_fps
+#### memory
+h RAM
+for k in MemTotal MemFree MemAvailable Buffers Cached Active Inactive Shmem Slab SReclaimable SwapTotal SwapFree SwapCached Dirty Mapped; do
+ v=$(sed -n "s/^$k: *\([0-9]*\).*/\1/p" /proc/meminfo); [ -n "$v" ] && r "$k" "$(kb $v)"
+done
+h "zRAM / swap"
+for z in /sys/block/zram*; do
+ [ -d "$z" ] || continue
+ r "${z##*/} size" "$(hb $(rd $z/disksize))"
+ rr "${z##*/} algorithm" $z/comp_algorithm
+ rr "${z##*/} streams" $z/max_comp_streams
+done
+rr swappiness /proc/sys/vm/swappiness
+rr vfs_cache_pressure /proc/sys/vm/vfs_cache_pressure
+rr min_free_kbytes /proc/sys/vm/min_free_kbytes
+rr "dirty_ratio" /proc/sys/vm/dirty_ratio
+rr "overcommit" /proc/sys/vm/overcommit_memory
+h "Android heap"
+rp "dalvik heapsize" dalvik.vm.heapsize
+rp "dalvik heapgrowthlimit" dalvik.vm.heapgrowthlimit
+rp "dalvik heapstartsize" dalvik.vm.heapstartsize
+rp "low-RAM device" ro.config.low_ram
+rp "LMKD" ro.lmk.use_psi
+h "Memory type (kernel log)"
+DM=$(dmesg 2>/dev/null)
+dc "DRAM" 'lpddr[0-9x]+'
+for d in /sys/class/devfreq/*; do
+ case "${d##*/}" in *ddr*|*dram*|*bus*|*llcc*|*emi*|*cpubw*) [ -r $d/cur_freq ] && r "${d##*/}" "cur $(rd $d/cur_freq) max $(rd $d/max_freq)";; esac
+done
+#### storage
+h Volumes
+for m in /data /system /vendor /product /system_ext /odm /cache /metadata /mnt/vendor/persist /sdcard; do
+ [ -d "$m" ] || continue
+ set -- $(df -k "$m" 2>/dev/null | tail -n 1)
+ if num "$2" && [ "$2" -gt 0 ]; then bar "$m" $(($3*100/$2)) "$(kb $3) / $(kb $2)"; fi
+done
+r "/data file system" "$(grep ' /data ' /proc/mounts | head -n 1 | cut -d' ' -f3)"
+rp Encryption ro.crypto.state
+rp "Encryption type" ro.crypto.type
+h "Flash chip"
+rp "Boot device" ro.boot.bootdevice
+for b in /sys/block/sd[a-z] /sys/block/mmcblk[0-9] /sys/block/nvme[0-9]*; do
+ [ -d "$b" ] || continue
+ sz=$(rd $b/size); num "$sz" && sz=$(hb $((sz*512)))
+ r "${b##*/}" "$sz  $(rd $b/device/vendor) $(rd $b/device/model) $(rd $b/device/rev)"
+done
+for k in name manfid oemid date fwrev hwrev serial life_time pre_eol_info; do rr "eMMC $k" /sys/block/mmcblk0/device/$k; done
+for f in /sys/devices/platform/*/health_descriptor /sys/devices/platform/*/*/health_descriptor /sys/devices/platform/soc/*/health_descriptor; do
+ [ -d "$f" ] || continue
+ for k in eol_info life_time_estimation_a life_time_estimation_b; do rr "UFS $k" $f/$k; done
+ break
+done
+for f in /sys/devices/platform/*/device_descriptor /sys/devices/platform/*/*/device_descriptor /sys/devices/platform/soc/*/device_descriptor; do
+ [ -d "$f" ] || continue
+ for k in manufacturer_id device_version specification_version; do rr "UFS $k" $f/$k; done
+ break
+done
+rr "Scheduler (sda)" /sys/block/sda/queue/scheduler
+rr "Read-ahead (sda)" /sys/block/sda/queue/read_ahead_kb
+h "Mounts"
+grep -E ' (/data|/system|/vendor|/product|/system_ext|/odm|/metadata|/cache) ' /proc/mounts | while read -r dev mp fs opt rest; do r "$mp" "$fs  $(printf '%s' "$opt" | cut -d, -f1)  $dev"; done
+#### partitions
+h Layout
+rp "Slot suffix" ro.boot.slot_suffix
+rp "Dynamic partitions" ro.boot.dynamic_partitions
+rp "Treble" ro.treble.enabled
+rp "Virtual A/B" ro.virtual_ab.enabled
+rp "A/B OTA" ro.build.ab_update
+rp "System-as-root" ro.build.system_root_image
+h "Physical partitions"
+BN=""
+for c in /dev/block/by-name /dev/block/bootdevice/by-name /dev/block/platform/*/by-name /dev/block/platform/*/*/by-name; do [ -d "$c" ] && { BN=$c; break; }; done
+if [ -n "$BN" ]; then
+ r "Source" "$BN"
+ for p in $BN/*; do
+  real=$(readlink -f "$p" 2>/dev/null); b=${real##*/}
+  sz=$(rd /sys/class/block/$b/size); num "$sz" && sz=$(hb $((sz*512)))
+  r "${p##*/}" "$sz  ($b)"
+ done
+else
+ r "by-name" "not readable (needs root)"
+ grep -v '^major' /proc/partitions | while read -r ma mi bl nm; do [ -n "$nm" ] && r "$nm" "$(kb $bl)"; done
+fi
+h "Dynamic partitions (super)"
+for p in /dev/block/mapper/*; do
+ [ -e "$p" ] || continue
+ real=$(readlink -f "$p" 2>/dev/null); b=${real##*/}
+ sz=$(rd /sys/class/block/$b/size); num "$sz" && sz=$(hb $((sz*512)))
+ r "${p##*/}" "$sz"
+done
+#### battery
+h Status
+dumpsys battery 2>/dev/null | sed -n 's/^ *\([A-Za-z][A-Za-z ]*\): *\(.*\)$/\1|\2/p' | head -n 24
+h Details
+B=/sys/class/power_supply/battery
+[ -d $B ] || for B in /sys/class/power_supply/*; do [ "$(rd $B/type)" = "Battery" ] && break; done
+rr "Capacity (%)" $B/capacity
+rr Status $B/status
+rr Health $B/health
+rr Technology $B/technology
+rr "Cycle count" $B/cycle_count
+rr "Charge type" $B/charge_type
+v=$(rd $B/voltage_now); num "$v" && r Voltage "$((v/1000)) mV"
+c=$(rd $B/current_now); case "$c" in -*|[0-9]*) num "${c#-}" && r "Current now" "$((c/1000)) mA";; esac
+t=$(rd $B/temp); num "$t" && r Temperature "$((t/10)).$((t%10)) °C"
+fd=$(rd $B/charge_full_design); ff=$(rd $B/charge_full)
+if num "$fd" && num "$ff" && [ "$fd" -gt 0 ]; then
+ r "Design capacity" "$((fd/1000)) mAh"; r "Full charge capacity" "$((ff/1000)) mAh"; bar "Battery health" $((ff*100/fd)) "$((ff*100/fd)) %"
+else
+ ed=$(rd $B/energy_full_design); ef=$(rd $B/energy_full)
+ if num "$ed" && num "$ef" && [ "$ed" -gt 0 ]; then r "Design energy" "$((ed/1000)) mWh"; bar "Battery health" $((ef*100/ed)) "$((ef*100/ed)) %"; fi
+fi
+x=$(rd $B/charge_counter); num "$x" && r "Charge counter" "$((x/1000)) mAh"
+x=$(rd $B/constant_charge_current_max); num "$x" && r "Max charge current" "$((x/1000)) mA"
+x=$(rd $B/input_current_limit); num "$x" && r "Input current limit" "$((x/1000)) mA"
+rr "Time to full (s)" $B/time_to_full_now
+rr Model $B/model_name
+rr Manufacturer $B/manufacturer
+rr "Night charging" $B/night_charging
+h "Power supplies"
+for s in /sys/class/power_supply/*; do
+ [ -d "$s" ] && r "${s##*/}" "type $(rd $s/type)  online $(rd $s/online)  $(rr x $s/voltage_now >/dev/null)"
+done
+DM=$(dmesg 2>/dev/null)
+h "Chips (kernel log)"
+dc "Charger / gauge" 'sgm4154[0-9]*|bq2[0-9]{4}[a-z]*|bq25[0-9a-z]+|sm5[0-9]{3}|rt9[0-9]{3}|nu2[0-9]{3}|upm[0-9]{4}|smb[0-9]{4}|smb1[0-9a-z]+|max77[0-9]{3}|cw2[0-9]{3}|bq27[0-9]{3}|fg_[a-z0-9_]+|sc89[0-9]+|hl7[0-9]{3}|ln8[0-9]{3}'
+#### camera
+h "Sensors (kernel log)"
+DM=$(dmesg 2>/dev/null | grep -iE 'cam|sensor|imgsensor')
+dc "Image sensors" 'imx[0-9]{3}[a-z]*|s5k[0-9a-z]{3,6}|ov[0-9]{4,5}[a-z]*|gc[0-9]{4}[a-z]*|hi[0-9]{3,4}[a-z]*|sc[0-9]{3,4}[a-z]*|sp[0-9]{4}[a-z]*|jx[a-z]?[0-9]{2,4}|bf[0-9]{4}|lc[0-9]{5}'
+dc "Flash / OIS / AF" 'aw3[0-9]{3}|lm3[0-9]{3}|sgm3[0-9]{3}|ak7[0-9]{3}|dw9[0-9]{3}|bu6[0-9]{3}|fp5[0-9]{3}|gt9[0-9]{3}|ois[a-z0-9_]*'
+[ -r /proc/driver/camera_info ] && r "camera_info (MTK)" "$(head -c 400 /proc/driver/camera_info | tr '\n' ' ')"
+for v in /sys/class/video4linux/video*; do [ -d "$v" ] && r "${v##*/}" "$(rd $v/name)"; done
+h "Features"
+pm list features 2>/dev/null | grep -i camera | sed 's/^feature://' | while read -r f; do r Feature "$f"; done
+h "Camera2 characteristics"
+dumpsys media.camera 2>/dev/null | grep -E 'Camera ID|Device [0-9]+ maps|android\.lens\.facing |android\.sensor\.info\.pixelArraySize |android\.sensor\.info\.physicalSize |android\.lens\.info\.availableFocalLengths |android\.lens\.info\.availableApertures |android\.flash\.info\.available |android\.lens\.info\.minimumFocusDistance ' -A1 | grep -v '^--' | sed 's/^ *//' | head -n 120
+#### sensors
+h "Sensor list"
+sd=$(dumpsys sensorservice 2>/dev/null)
+cnt=$(printf '%s\n' "$sd" | grep -cE '^0x[0-9a-f]+\) ')
+r "Total sensors" "$cnt"
+printf '%s\n' "$sd" | grep -E '^0x[0-9a-f]+\) ' | sed 's/^0x[0-9a-f]*) *//; s/ *| */|/g' | while IFS='|' read -r n v ver t rest; do
+ r "$n" "$v  -  ${t#type: }"
+done
+h "Sensor features"
+pm list features 2>/dev/null | grep -i 'sensor' | sed 's/^feature://' | while read -r f; do r Feature "$f"; done
+DM=$(dmesg 2>/dev/null)
+h "ICs (kernel log)"
+dc "Motion / environment" 'lsm6[a-z0-9]*|icm4[0-9]+|icm2[0-9]+|bmi[0-9]+|bma[0-9]+|mpu[0-9]+|stk[0-9a-z]+|ltr[0-9a-z]+|tcs3[0-9]+|apds[0-9]+|mmc5[0-9]+|akm0[0-9]+|yas5[0-9]+|sx9[0-9]+|vl53[0-9a-z]+|mxc[0-9]+|bmp[0-9]+|lps[0-9a-z]+'
+#### network
+h Wi-Fi
+rr "MAC (wlan0)" /sys/class/net/wlan0/address
+r State "$(cmd wifi status 2>/dev/null | head -n 1)"
+dumpsys wifi 2>/dev/null | grep -m 1 'mWifiInfo' | sed 's/^mWifiInfo //' | tr ',' '\n' | sed 's/^ *//' | grep -E 'SSID|BSSID|standard|RSSI|speed|Frequency|Security|MAC|Supplicant' | sed 's/: */|/' | head -n 14
+dumpsys wifi 2>/dev/null | grep -m 8 -iE '5GHz|6GHz|wifi6|11ax|11ac|WIFI_STANDARD' | sed 's/^ *//' | cut -c1-160 | while read -r l; do r "Capability" "$l"; done
+rr "WLAN PCI/SDIO vendor" /sys/class/net/wlan0/device/vendor
+rr "WLAN device id" /sys/class/net/wlan0/device/device
+rp "Country code" ro.boot.wificountrycode
+DM=$(dmesg 2>/dev/null)
+dc "Wi-Fi chip (kernel log)" 'wcn[0-9]+|qca[0-9]+|mt76[0-9]+|mt66[0-9]+|mt79[0-9]+|rtl8[0-9a-z]+|bcm4[0-9]+|wlan_[a-z0-9]+|cnss[a-z0-9_]*'
+h Bluetooth
+dumpsys bluetooth_manager 2>/dev/null | grep -m 12 -iE '^ *(name|address|state|enabled|BLE|LE audio|a2dp|offload)' | sed 's/^ *//; s/: */|/' | head -n 12
+pp 'bluetooth' 14
+dc "BT chip (kernel log)" 'wcn[0-9]+|qca[0-9]+|hci[0-9a-z_]+|btmtk[a-z0-9_]*|mt66[0-9]+|bcm4[0-9]+'
+h Cellular
+pp 'gsm\.|ril\.|ro\.telephony|persist\.radio|ro\.boot\.hwc|ro\.boot\.carrier' 28
+dumpsys telephony.registry 2>/dev/null | grep -m 3 -E 'mServiceState|mSignalStrength|mDataConnectionState' | cut -c1-260 | while read -r l; do r Telephony "$l"; done
+h NFC
+pm list features 2>/dev/null | grep -i nfc | sed 's/^feature://' | while read -r f; do r Feature "$f"; done
+dumpsys nfc 2>/dev/null | grep -m 6 -iE 'mState|FW|firmware|nfcc|chip' | sed 's/^ *//; s/: */|/' | head -n 6
+dc "NFC chip (kernel log)" 'pn5[0-9]+|st21nfc[a-z0-9]*|sn1[0-9]+|nxp[a-z0-9_]*|st54[a-z0-9]*|nq[0-9a-z]+'
+h GNSS
+rp "GPS HAL" ro.hardware.gps
+dumpsys location 2>/dev/null | grep -m 6 -iE 'gnss.*(hardware|model|year)|Constellation|Satellite' | sed 's/^ *//' | cut -c1-200 | while read -r l; do r GNSS "$l"; done
+dc "GNSS chip (kernel log)" 'mt3[0-9]{3}|bcm47[0-9]+|sirf[a-z0-9]*|gnss[_a-z0-9]*|gps[_a-z0-9]*'
+#### audio
+h "Sound cards"
+cat /proc/asound/cards 2>/dev/null | grep -E '^ *[0-9]' | sed 's/^ *//' | while read -r l; do r Card "$l"; done
+cat /proc/asound/pcm 2>/dev/null | head -n 24 | while read -r l; do r PCM "$l"; done
+h "Audio properties"
+pp 'audio' 24
+h "Hardware codecs"
+cl=$(dumpsys media.codec 2>/dev/null | grep -oE '(c2|OMX)\.[A-Za-z0-9_.-]+' | sort -u)
+r "Total codecs" "$(printf '%s\n' "$cl" | grep -c .)"
+printf '%s\n' "$cl" | grep -vE '^(c2\.android|c2\.google|OMX\.google)' | while read -r c; do [ -n "$c" ] && r "HW" "$c"; done
+h "DRM"
+pp 'drm|widevine' 8
+DM=$(dmesg 2>/dev/null)
+h "ICs (kernel log)"
+dc "Audio codec / amp" 'aw8[0-9]{4}|aw87[0-9]+|tfa98[0-9]+|cs35l[0-9]+|wcd9[0-9]+|wsa88[0-9]+|rt5[0-9]{3}|es9[0-9]{3}|max98[0-9]+|tas2[0-9]+|awinic[a-z0-9_]*|aw882[0-9a-z]+|sia81[0-9]+|fs1[0-9]{3}|mt6[0-9]{3}-accdet|madera|wm8[0-9]{3}'
+#### drivers
+DM=$(dmesg 2>/dev/null)
+if [ -z "$DM" ]; then r Note "kernel log not readable (needs root or the log has rotated)"; fi
+h "Chips found in the kernel log"
+dc "Touchscreen" 'goodix[_a-z0-9]*|gt9[0-9]{2,3}[a-z]?|nvt[_a-z0-9]*|nt3[0-9]{4}|himax[_a-z0-9]*|hx83[0-9]+|fts[_a-z0-9]*|synaptics[_a-z0-9]*|focaltech[_a-z0-9]*|ft[3-9][0-9]{3}[a-z]?|chipone[_a-z0-9]*|icnl[0-9]+|cst[0-9]{3}[a-z]*|gslx?[0-9]+|ilitek[_a-z0-9]*|ili[0-9]{4}[a-z]?|msg[0-9]{4}|sec_ts|elan[_a-z0-9]*'
+dc "Display (LCD)" 'panel[_-][a-z0-9_-]+|lcm[_-][a-z0-9_-]+|td4[0-9]{3}|rm69[0-9]{3}|s6e[0-9a-z]+|ea[0-9]{4}[a-z]*|ili9[0-9]{3}|ft8[0-9]{3}|hx83[0-9]{3}'
+dc "Camera sensors" 'imx[0-9]{3}[a-z]*|s5k[0-9a-z]{3,6}|ov[0-9]{4,5}[a-z]*|gc[0-9]{4}[a-z]*|hi[0-9]{3,4}[a-z]*|sc[0-9]{3,4}[a-z]*'
+dc "Fingerprint" 'goodix_fp[a-z0-9_]*|fpc[0-9a-z_]+|gf[0-9]{4}|egis[a-z0-9_]*|et[0-9]{3}[a-z]?|silead[a-z0-9_]*|cdfinger[a-z0-9_]*|elan_fp|fingerprint[_a-z0-9]*|udfps[a-z_]*'
+dc "Audio" 'aw8[0-9]{4}|tfa98[0-9]+|cs35l[0-9]+|wcd9[0-9]+|wsa88[0-9]+|rt5[0-9]{3}|es9[0-9]{3}|max98[0-9]+|tas2[0-9]+|sia81[0-9]+|fs1[0-9]{3}'
+dc "Haptics" 'aw862[0-9]+|aw8[0-9]{3}_haptic|drv26[0-9]+|cs40l[0-9]+|haptic[a-z0-9_]*|qti-haptics'
+dc "Charger / gauge" 'sgm4154[0-9]*|bq2[0-9]{4}[a-z]*|sm5[0-9]{3}|rt9[0-9]{3}|nu2[0-9]{3}|upm[0-9]{4}|smb[0-9]{4}|max77[0-9]{3}|cw2[0-9]{3}|bq27[0-9]{3}|sc89[0-9]+'
+dc "Sensors" 'lsm6[a-z0-9]*|icm4[0-9]+|bmi[0-9]+|bma[0-9]+|stk[0-9a-z]+|ltr[0-9a-z]+|tcs3[0-9]+|apds[0-9]+|mmc5[0-9]+|akm0[0-9]+|yas5[0-9]+|sx9[0-9]+|vl53[0-9a-z]+'
+dc "NFC" 'pn5[0-9]+|st21nfc[a-z0-9]*|sn1[0-9]+|nxp[a-z0-9_]*|st54[a-z0-9]*'
+dc "Wi-Fi / BT" 'wcn[0-9]+|qca[0-9]+|mt76[0-9]+|mt66[0-9]+|mt79[0-9]+|rtl8[0-9a-z]+|bcm4[0-9]+'
+dc "Storage" 'ufs[a-z0-9_]*|mmc[0-9]+|hynix|micron|kioxia|toshiba|sandisk|samsung[ _-]ufs'
+dc "PMIC" 'pm[0-9]{3,5}[a-z]?|pmi[0-9]+|pmk[0-9]+|mt63[0-9]{2}p?|rk8[0-9]+|axp[0-9]+|da9[0-9]+|pmr[0-9]+|pmx[0-9]+'
+dc "IR / Others" 'ir_[a-z0-9_]+|lirc[a-z0-9_]*|hall[_a-z0-9]*|moto[_a-z0-9]*'
+h "Input devices"
+sed -n 's/^N: Name="\(.*\)"/\1/p' /proc/bus/input/devices 2>/dev/null | while read -r l; do r Input "$l"; done
+for f in /proc/touchpanel /proc/tp_info /proc/tp_version /proc/touchscreen /proc/tp_firmware /proc/nvt_fw_version /proc/gt1x_version; do
+ [ -r "$f" ] && r "$f" "$(head -c 200 $f | tr '\n' ' ')"
+done
+h "Block / char device counts"
+r "Character devices" "$(sed -n '/^Character/,/^$/p' /proc/devices | grep -c '^ *[0-9]')"
+r "Block devices" "$(sed -n '/^Block/,/^$/p' /proc/devices | grep -c '^ *[0-9]')"
+r "Platform drivers" "$(ls /sys/bus/platform/drivers 2>/dev/null | wc -l)"
+r "Platform devices" "$(ls /sys/bus/platform/devices 2>/dev/null | wc -l)"
+#### buses
+h "I2C devices"
+for d in /sys/bus/i2c/devices/*; do
+ [ -d "$d" ] || continue
+ n=$(rd $d/name); [ -z "$n" ] && continue
+ dr=""; [ -L $d/driver ] && dr="  driver $(basename $(readlink $d/driver))"
+ r "${d##*/}" "$n$dr"
+done
+h "I2C adapters"
+for d in /sys/class/i2c-adapter/*; do [ -d "$d" ] && r "${d##*/}" "$(rd $d/name)"; done
+h "SPI devices"
+for d in /sys/bus/spi/devices/*; do
+ [ -d "$d" ] || continue
+ n=$(rd $d/modalias); [ -z "$n" ] && n=$(rd $d/name)
+ dr=""; [ -L $d/driver ] && dr="  driver $(basename $(readlink $d/driver))"
+ r "${d##*/}" "$n$dr"
+done
+h "Buses"
+r "/sys/bus" "$(ls /sys/bus 2>/dev/null | tr '\n' ' ')"
+r "SPMI devices" "$(ls /sys/bus/spmi/devices 2>/dev/null | wc -l)"
+r "I3C devices" "$(ls /sys/bus/i3c/devices 2>/dev/null | wc -l)"
+r "Slimbus devices" "$(ls /sys/bus/slimbus/devices 2>/dev/null | wc -l)"
+#### pmic
+h "Regulators"
+for d in /sys/class/regulator/regulator.*; do
+ [ -d "$d" ] || continue
+ n=$(rd $d/name); [ -z "$n" ] && continue
+ uv=$(rd $d/microvolts); st=$(rd $d/state)
+ if num "$uv"; then v="$((uv/1000)) mV"; else v=""; fi
+ r "$n" "$v  $st"
+done
+if [ -r /sys/kernel/debug/regulator/regulator_summary ]; then
+ h "regulator_summary (debugfs)"
+ head -n 60 /sys/kernel/debug/regulator/regulator_summary | cut -c1-120 | while read -r l; do r "." "$l"; done
+fi
+DM=$(dmesg 2>/dev/null)
+h "PMIC chips (kernel log)"
+dc "PMIC" 'pm[0-9]{3,5}[a-z]?|pmi[0-9]+|pmk[0-9]+|mt63[0-9]{2}p?|rk8[0-9]+|axp[0-9]+|da9[0-9]+|pmr[0-9]+|pmx[0-9]+'
+#### thermal
+h "Thermal zones"
+for z in /sys/class/thermal/thermal_zone*; do
+ [ -d "$z" ] || continue
+ t=$(rd $z/temp); ty=$(rd $z/type)
+ num "$t" || continue
+ r "$ty" "$(tc $t)"
+done
+h "Cooling devices"
+for c in /sys/class/thermal/cooling_device*; do
+ [ -d "$c" ] && r "$(rd $c/type)" "state $(rd $c/cur_state) / $(rd $c/max_state)"
+done | head -n 40
+h "Thermal HAL"
+dumpsys thermalservice 2>/dev/null | grep -m 24 -E 'Temperature\{|mStatus|Thermal Status' | sed 's/^ *//' | cut -c1-150 | while read -r l; do r "." "$l"; done
+#### usb
+h "Port"
+for f in data_role power_role preferred_role port_type power_operation_mode orientation; do rr "$f" /sys/class/typec/port0/$f; done
+h "USB supply"
+for f in online type real_type voltage_now current_max current_now input_current_limit pd_active; do rr "$f" /sys/class/power_supply/usb/$f; done
+h "Gadget"
+rp "sys.usb.state" sys.usb.state
+rp "sys.usb.config" sys.usb.config
+rp "persist.sys.usb.config" persist.sys.usb.config
+for u in /sys/class/udc/*; do [ -d "$u" ] && r "UDC ${u##*/}" "$(rd $u/state)  $(rd $u/current_speed)  max $(rd $u/maximum_speed)"; done
+dumpsys usb 2>/dev/null | grep -m 8 -E 'connected|current_function|host_connected|data_role|power_role' | sed 's/^ *//' | cut -c1-150 | while read -r l; do r "." "$l"; done
+pm list features 2>/dev/null | grep -i usb | sed 's/^feature://' | while read -r f; do r Feature "$f"; done
+h "Connected devices (host)"
+for d in /sys/bus/usb/devices/*; do
+ [ -r "$d/idVendor" ] || continue
+ r "${d##*/}" "$(rd $d/idVendor):$(rd $d/idProduct)  $(rd $d/manufacturer) $(rd $d/product)  $(rd $d/speed) Mb/s"
+done
+#### system
+h Android
+rp Release ro.build.version.release
+rp "API level" ro.build.version.sdk
+rp "SDK full" ro.build.version.sdk_full
+rp Codename ro.build.version.codename
+rp "Security patch" ro.build.version.security_patch
+rp "Vendor security patch" ro.vendor.build.security_patch
+rp "First API level" ro.product.first_api_level
+rp "Build ID" ro.build.id
+rp "Display ID" ro.build.display.id
+rp Incremental ro.build.version.incremental
+rp "Build type" ro.build.type
+rp "Build tags" ro.build.tags
+rp "Build date" ro.build.date
+rp "Build user/host" ro.build.user
+rp Fingerprint ro.build.fingerprint
+rp "Vendor fingerprint" ro.vendor.build.fingerprint
+rp "Bootloader" ro.bootloader
+rp "Baseband" gsm.version.baseband
+rp "Hardware" ro.hardware
+rp "Board" ro.product.board
+rp "HyperOS / MIUI" ro.mi.os.version.name
+rp "MIUI" ro.miui.ui.version.name
+h Kernel
+r Version "$(cat /proc/version | cut -c1-220)"
+r "uname" "$(uname -a | cut -c1-200)"
+rr "cmdline (start)" /proc/sys/kernel/osrelease
+h Security
+r SELinux "$(getenforce 2>/dev/null)"
+rp "Verified boot" ro.boot.verifiedbootstate
+rp "Bootloader locked" ro.boot.flash.locked
+rp "vbmeta state" ro.boot.vbmeta.device_state
+rp "Encryption" ro.crypto.state
+rp "Debuggable" ro.debuggable
+rp "Secure" ro.secure
+h Platform
+rp "Treble" ro.treble.enabled
+rp "VNDK" ro.vndk.version
+rp "Dalvik / ART" persist.sys.dalvik.vm.lib.2
+rp "Primary ABI" ro.product.cpu.abi
+rp "Locale" persist.sys.locale
+rp "Time zone" persist.sys.timezone
+r "Google services" "$(pm list packages com.google.android.gms 2>/dev/null | head -n 1 | sed 's/^package://')"
+r "Root (uid)" "$(id)"
+#### props
+pp '.' 2000
+#### features
+h "System features"
+pm list features 2>/dev/null | sed 's/^feature://' | sort | while read -r f; do r "." "$f"; done
+h "Libraries"
+pm list libraries 2>/dev/null | sed 's/^library://' | sort | head -n 80 | while read -r f; do r "." "$f"; done
+#### monitor
+sed -n '/^cpu[0-9]* /p' /proc/stat | while read -r n u ni s id io irq sirq rest; do echo "S|$n|$((u+ni+s+id+io+irq+sirq))|$((id+io))"; done
+for c in /sys/devices/system/cpu/cpu[0-9]*; do echo "F|${c##*/}|$(cat $c/cpufreq/scaling_cur_freq 2>/dev/null)"; done
+echo "M|$(sed -n 's/^MemTotal: *\([0-9]*\).*/\1/p' /proc/meminfo)|$(sed -n 's/^MemAvailable: *\([0-9]*\).*/\1/p' /proc/meminfo)"
+B=/sys/class/power_supply/battery
+echo "B|$(cat $B/capacity 2>/dev/null)|$(cat $B/temp 2>/dev/null)|$(cat $B/current_now 2>/dev/null)|$(cat $B/voltage_now 2>/dev/null)|$(cat $B/status 2>/dev/null)"
+for f in /sys/class/kgsl/kgsl-3d0/gpuclk /sys/class/devfreq/*gpu*/cur_freq /sys/class/devfreq/*mali*/cur_freq /sys/kernel/gpu/gpu_clock /sys/kernel/ged/hal/current_freq; do
+ [ -r "$f" ] && { echo "G|$(head -n 1 $f)|$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null)"; break; }
+done
+for z in /sys/class/thermal/thermal_zone*; do echo "Z|$(cat $z/type 2>/dev/null)|$(cat $z/temp 2>/dev/null)"; done

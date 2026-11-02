@@ -43,3 +43,7 @@
 .topbar .brand-sub{display:none !important}
 .topbar-right{flex:0 0 auto}
 #romBadge{display:none !important}
+
+/* Hardware shortcut pill in the tools sub-navigation */
+.subnav .hwlnk{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:9px 15px;border:1px solid var(--red-dark);border-radius:999px;background:transparent;color:var(--red);font-size:13px;font-weight:700;font-family:inherit}
+.subnav .hwlnk svg{width:18px;height:18px;fill:currentColor}

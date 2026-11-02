@@ -2072,5 +2072,25 @@ async function engLoad() {
 })();
 document.querySelectorAll(".tab-btn").forEach((btn) => btn.addEventListener("click", () => { try { if (btn.dataset.tab === "mods") engLoad(); } catch (e) { } }));
 
+
+// ---- Flash tab: system file picker (shared with the ADB page); fills the path when the file is on shared storage ----
+(function () {
+  const b = document.getElementById("flBrowse");
+  if (!b) return;
+  b.addEventListener("click", () => {
+    const H = window.mkvp;
+    if (!H || typeof H.pickFile !== "function") { toast(TT("File picker not available", "الـ picker مش متاح")); return; }
+    const cb = "fl_pick_" + Date.now();
+    window[cb] = (s) => {
+      try { delete window[cb]; } catch (e) { }
+      let r = {}; try { r = JSON.parse(s); } catch (e) { }
+      if (!r.ok) return;
+      if (r.path) { document.getElementById("flFile").value = r.path; toast(r.out); }
+      else toast(TT("Cannot resolve a path for this file - pick it from the list or copy it to Download", "مقدرتش أجيب مسار الملف - اختاره من القائمة أو انسخه لمجلد Download"));
+    };
+    try { H.pickFile(cb); } catch (e) { toast("Error: " + e.message); }
+  });
+})();
+
 // ---------------- init ----------------
 applyLang();

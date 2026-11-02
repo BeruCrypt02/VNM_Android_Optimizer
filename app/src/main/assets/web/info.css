@@ -1,0 +1,35 @@
+/* Hardware Info page */
+main{padding-bottom:120px}
+.isec{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;position:sticky;top:0;z-index:20;background:var(--bg);scrollbar-width:none}
+.isec::-webkit-scrollbar{display:none}
+.isec button{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--muted);padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:700;font-family:inherit}
+.isec button.on{background:var(--red);color:var(--bg);border-color:var(--red)}
+.isearch{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.isearch input{flex:1;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13.5px;outline:none}
+.isearch input:focus{border-color:var(--red)}
+.grp{font-size:11.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--red);margin:14px 6px 6px;font-weight:800}
+.igroup{border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--line-soft)}
+.irow{display:flex;gap:10px;padding:9px 13px;border-bottom:1px solid var(--line-soft);align-items:flex-start}
+.irow:last-child{border-bottom:none}
+.ik{flex:0 0 38%;max-width:38%;color:var(--muted);font-size:12.5px;word-break:break-word;direction:ltr;text-align:left}
+.iv{flex:1;min-width:0;font-size:13.5px;word-break:break-word;direction:ltr;text-align:left;user-select:text;-webkit-user-select:text}
+.irow.wide{display:block}.irow.wide .ik{max-width:none;margin-bottom:2px}
+.irow.mono .iv{font-family:monospace;font-size:11.5px;white-space:pre-wrap}
+.ibar{padding:10px 13px;border-bottom:1px solid var(--line-soft)}
+.ibar:last-child{border-bottom:none}
+.ibar .t{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-bottom:6px}
+.ibar .t span:first-child{color:var(--muted)}
+.ibar .t span:last-child{direction:ltr}
+.trk{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.trk i{display:block;height:100%;border-radius:99px;background:var(--red);transition:width .4s}
+.trk i.w{background:#e0a030}.trk i.d{background:#e05050}
+.empty,.busy{text-align:center;color:var(--muted);padding:34px 10px;font-size:13px}
+.iact{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.iact button{flex:1 1 140px;padding:11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:700;font-size:13px;font-family:inherit}
+.iact button.p{background:var(--red);color:var(--bg);border-color:var(--red)}
+.mcore{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+.mcell{background:var(--surface);border:1px solid var(--line-soft);border-radius:14px;padding:9px 11px}
+.mcell .t{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:5px}
+.mcell b{color:var(--text);font-size:12.5px}
+.lcdtest{position:fixed;inset:0;z-index:999;display:flex;align-items:flex-end;justify-content:center;color:#888;font-size:12px;padding-bottom:30px}
+.lcdtest[hidden]{display:none}

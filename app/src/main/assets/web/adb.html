@@ -73,6 +73,14 @@
       <div class="grid" id="adbReboot"></div>
     </div>
     <div class="card">
+      <h2>ADB Sideload</h2>
+      <p class="st" style="margin-top:0">Flash an OTA / ROM / module <b>.zip</b> to a target that is in <b>Recovery &rarr; Apply update from ADB</b> (or sideload mode). Tap <i>Sideload mode</i> first if the target is booted with USB debugging.</p>
+      <div class="row"><button class="b" id="slMode">Reboot target to sideload</button></div>
+      <div class="row" style="margin-top:8px"><button class="b" id="slPick">Choose zip</button><button class="b fill" id="slGo">Sideload</button></div>
+      <div class="st" id="slName">No file chosen</div>
+      <div class="bar"><i id="slBar"></i></div>
+    </div>
+    <div class="card">
       <h2>Install APK</h2>
       <div class="row"><button class="b" id="apkPick">Choose APK</button><button class="b fill" id="apkGo">Install on target</button></div>
       <div class="st" id="apkName">No file chosen</div>
@@ -290,7 +298,7 @@
   ADB_SVC.forEach(function (it) { $('adbReboot').appendChild(mk(it[0], it[2] ? 'warn' : '', function () { runSvc(it[1], it[2]); }, 'adb')); });
   PARTS.forEach(function (p) { var o = document.createElement('option'); o.value = p; o.textContent = p; $('part').appendChild(o); });
 
-  $('adbRun').setAttribute('data-m', 'adb'); $('apkGo').setAttribute('data-m', 'adb');
+  $('adbRun').setAttribute('data-m', 'adb'); $('apkGo').setAttribute('data-m', 'adb'); $('slGo').setAttribute('data-m', 'adb'); $('slMode').setAttribute('data-m', 'adb');
   $('fbRun').setAttribute('data-m', 'fb'); $('imgGo').setAttribute('data-m', 'fb');
   $('adbRun').onclick = function () { var c = $('adbCmd').value.trim(); if (c) runAdb(c, false); };
   $('fbRun').onclick = function () { var c = $('fbCmd').value.trim(); if (c) runFb(c, false); };
@@ -304,7 +312,17 @@
   }
   $('apkPick').onclick = function () { pick($('apkName')); };
   $('imgPick').onclick = function () { pick($('imgName')); };
-  window.mkvpProgress = function (p) { $('apkBar').style.width = p + '%'; $('imgBar').style.width = p + '%'; };
+  $('slPick').onclick = function () { pick($('slName')); };
+  $('slMode').onclick = function () { runSvc('reboot:sideload', true); };
+  $('slGo').onclick = async function () {
+    if (!$('slName').textContent.match(/\.zip/i) && !confirm('The chosen file does not look like a .zip. Sideload it anyway?')) return;
+    if (!confirm('Sideload this file to the target now?\n\nDo not unplug the cable until it says finished.')) return;
+    if (!(await ensurePerm())) return;
+    busy = true; refreshButtons(); $('slBar').style.width = '0%'; log('Sideloading… keep the cable connected.');
+    var r = await call('adbSideload', cur.name);
+    busy = false; refreshButtons(); log((r.ok ? '' : '[error]\n') + r.out);
+  };
+  window.mkvpProgress = function (p) { $('apkBar').style.width = p + '%'; $('imgBar').style.width = p + '%'; $('slBar').style.width = p + '%'; };
   $('apkGo').onclick = async function () {
     if (!(await ensurePerm())) return;
     busy = true; refreshButtons(); log('Installing…');

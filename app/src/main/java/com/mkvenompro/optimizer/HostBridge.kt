@@ -166,9 +166,21 @@ class HostBridge(private val act: MainActivity, private val web: WebView) {
                         if (si >= 0) size = q.getLong(si)
                     }
                 }
-                reply(cb, res(true, nm).put("size", size))
+                reply(cb, res(true, nm).put("size", size).put("path", realPath(uri)))
             }
         }
+    }
+
+    /** Best-effort real path of a picked document (primary storage / raw downloads) so root tools can use it, "" otherwise. */
+    private fun realPath(uri: android.net.Uri): String {
+        return try {
+            val id = android.provider.DocumentsContract.getDocumentId(uri)
+            when {
+                id.startsWith("primary:") -> "/storage/emulated/0/" + id.removePrefix("primary:")
+                id.startsWith("raw:") -> id.removePrefix("raw:")
+                else -> ""
+            }
+        } catch (e: Exception) { "" }
     }
 
     private fun progress(p: Int) {
@@ -210,6 +222,30 @@ class HostBridge(private val act: MainActivity, private val web: WebView) {
                 }
             } catch (e: Exception) {
                 c.close(); fb.remove(name)
+                reply(cb, res(false, e.message ?: e.toString()))
+            }
+        }
+    }
+
+    /** adb sideload of the picked zip to a target in sideload mode. */
+    @JavascriptInterface
+    fun adbSideload(name: String, cb: String) {
+        val uri = picked ?: return reply(cb, res(false, "Pick a zip first"))
+        pool.execute {
+            val (c, err) = adbFor(name)
+            if (c == null) return@execute reply(cb, res(false, err ?: "not connected"))
+            try {
+                val pfd = act.contentResolver.openFileDescriptor(uri, "r") ?: return@execute reply(cb, res(false, "Cannot open the file"))
+                pfd.use {
+                    val size = it.statSize
+                    if (size <= 0) return@execute reply(cb, res(false, "Cannot read the file size"))
+                    java.io.FileInputStream(it.fileDescriptor).channel.use { ch ->
+                        val out = c.sideload(size, ch) { p -> progress(p) }
+                        reply(cb, res(out.contains("finished"), out))
+                    }
+                }
+            } catch (e: Exception) {
+                c.close(); adb.remove(name)
                 reply(cb, res(false, e.message ?: e.toString()))
             }
         }

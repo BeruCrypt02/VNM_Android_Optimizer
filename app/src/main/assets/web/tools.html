@@ -25,6 +25,10 @@
   </div>
 </header>
 <nav class="bottom-nav subnav">
+  <button class="hwlnk" id="hwLink" type="button" onclick="location.href='info.html'">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v2h2a2 2 0 012 2v2h2v6h-2v2a2 2 0 01-2 2h-2v2H9v-2H7a2 2 0 01-2-2v-2H3V9h2V7a2 2 0 012-2h2V3zm-2 4v10h10V7H7zm3 3h4v4h-4v-4z"/></svg>
+    <span>Hardware</span>
+  </button>
   <button class="tab-btn active" data-tab="debloat">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm-3 6h12l-1 12H7L6 9z"/></svg>
     <span data-i18n="tabDebloat">Debloat</span>
@@ -328,6 +332,7 @@
 
   <!-- ===================== DEVICE ===================== -->
   <section id="tab-dev" class="tab">
+    <button class="primary-btn" type="button" onclick="location.href='info.html'">Full hardware info (CPU, GPU, camera, drivers, PMIC…) →</button>
     <div class="card">
       <h2 data-i18n="batTitle">Battery</h2>
       <div class="bat-top"><div class="bat-pct" id="batPct">–</div><div class="bat-state" id="batState">…</div></div>
@@ -378,6 +383,7 @@
 
   <!-- ===================== SENSORS ===================== -->
   <section id="tab-sens" class="tab">
+    <button class="secondary-btn" type="button" onclick="location.href='info.html#sensors'">Full sensor list (vendor / chip) →</button>
     <div class="card">
       <h2 data-i18n="senTitle">Sensor check</h2>
       <p data-i18n="senDesc">Shows which sensors this GSI really exposes to Android. A sensor missing here means the GSI or vendor HAL does not see it — apps cannot use it either.</p>
@@ -492,6 +498,7 @@
       <p class="sub" data-i18n="flFileDesc">Pick an image / zip / apk from Download, or type a full path.</p>
       <div id="flFiles" class="term-chips"></div>
       <input type="text" id="flFile" class="search-box" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="/sdcard/Download/boot.img">
+      <button id="flBrowse" class="secondary-btn">Browse… (file picker)</button>
       <button id="flFilesRefresh" class="secondary-btn" data-i18n="flFilesRefresh">Rescan storage</button>
     </div>
 
