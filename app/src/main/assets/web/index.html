@@ -230,17 +230,17 @@ textarea:disabled{opacity:.45}
 </style>
 <link rel="stylesheet" href="polish.css">
 <link rel="stylesheet" href="compact.css">
+<link rel="stylesheet" href="liquid-glass.css">
 </head>
 <body>
 
-<header class="topbar"><div class="tb">
+<header class="topbar"><div class="topbar-inner">
   <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17"/><path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5"/><path d="M3.6 10.4l3.4-.9-.9-3.4M20.4 13.6l-3.4.9.9 3.4"/><path d="M6.1 17.9l.9-3.4-3.4-.9M17.9 6.1l-.9 3.4 3.4.9"/></svg></div>
-  <div class="grow">
+  <div class="title-group">
     <h1>VNM Optimizer</h1>
-    <div class="by">Android Optimizer</div>
-    <div class="hchips"><span class="hchip" data-verlong>Version 2.0.0</span></div>
+    <div class="subtitle">Android Performance &amp; Thermal</div>
   </div>
-  <div class="state idle" id="mstate"><i></i><span>Loading</span></div>
+  <div class="status-pill idle" id="rootStatus"><i class="dot"></i><span>Loading…</span></div>
 </div>
 </header>
 
@@ -351,14 +351,14 @@ textarea:disabled{opacity:.45}
   <button class="btn fill" id="savereboot">Save &amp; reboot</button>
 </div>
 
-<nav class="nav"><div class="navin"><div class="pill-ind" id="pillInd"></div>
-  <button class="tab active" data-page="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11L12 3.5l8.5 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg><span>Home</span></button>
-  <button class="tab" data-page="kernel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3"/></svg><span>Kernel</span></button>
-  <button class="tab" data-page="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h9M17 6.5h3M4 12h3M11 12h9M4 17.5h11M19 17.5h1"/><circle cx="15" cy="6.5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17.5" r="2"/></svg><span>System</span></button>
-  <button class="tab" data-page="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M12 8.5v7M8.5 12h7"/></svg><span>More</span></button>
-  <button class="tab" data-page="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Config</span></button>
-  <button class="tab" data-href="tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.4 2.4-2.1-.5-.5-2.1z"/></svg><span>Device</span></button>
-  <button class="tab" data-href="adb.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7.5 10l3 2.5-3 2.5M12.5 15h4"/></svg><span>ADB</span></button>
+<nav class="nav"><div class="nav-inner"><div class="pill-indicator" id="pillIndicator"></div>
+  <button class="nav-tab active" data-page="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11L12 3.5l8.5 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg><span>Home</span></button>
+  <button class="nav-tab" data-page="kernel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3"/></svg><span>Kernel</span></button>
+  <button class="nav-tab" data-page="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h9M17 6.5h3M4 12h3M11 12h9M4 17.5h11M19 17.5h1"/><circle cx="15" cy="6.5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17.5" r="2"/></svg><span>System</span></button>
+  <button class="nav-tab" data-page="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M12 8.5v7M8.5 12h7"/></svg><span>More</span></button>
+  <button class="nav-tab" data-page="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Config</span></button>
+  <button class="nav-tab" data-href="tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.4 2.4-2.1-.5-.5-2.1z"/></svg><span>Device</span></button>
+  <button class="nav-tab" data-href="adb.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7.5 10l3 2.5-3 2.5M12.5 15h4"/></svg><span>ADB</span></button>
 </div></nav>
 
 <div class="snack" id="snack"></div>
@@ -1791,9 +1791,9 @@ textarea:disabled{opacity:.45}
     window.scrollTo(0, 0);
   }
   function movePill() {
-    var ind = document.getElementById('pillInd');
+    var ind = document.getElementById('pillIndicator');
     if (!ind) return;
-    var active = document.querySelector('.tab.active');
+    var active = document.querySelector('.nav-tab.active');
     if (!active) { ind.classList.remove('show'); return; }
     var left = active.offsetLeft;
     var width = active.offsetWidth;
@@ -1812,7 +1812,24 @@ textarea:disabled{opacity:.45}
     ind.classList.add('show');
   }
   window.addEventListener('resize', movePill);
-  document.querySelectorAll('.tab').forEach(function (t) {
+  setTimeout(movePill, 80);
+
+  /* root status pill */
+  (function rootPoll() {
+    var el = document.getElementById('rootStatus');
+    if (!el) return;
+    var hasKsu = typeof window.ksu !== 'undefined' && window.ksu && typeof window.ksu.exec === 'function';
+    if (!hasKsu) {
+      el.className = 'status-pill idle';
+      el.innerHTML = '<i class="dot"></i><span>Preview</span>';
+      setTimeout(rootPoll, 5000);
+      return;
+    }
+    el.className = 'status-pill ok';
+    el.innerHTML = '<i class="dot"></i><span>Root Active</span>';
+    setTimeout(rootPoll, 5000);
+  })();
+  document.querySelectorAll('.nav-tab').forEach(function (t) {
     t.addEventListener('click', function () {
       var h = t.getAttribute('data-href');
       if (h) { location.replace(h); return; }
