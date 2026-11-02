@@ -1,4 +1,4 @@
-# MkVenomPro Android Optimizer
+# VNM Android Optimizer
 
 Root-powered Android app that combines:
 
