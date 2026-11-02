@@ -319,7 +319,7 @@ textarea:disabled{opacity:.45}
   <!-- ======================= TOOLS ======================= -->
   <section class="page" id="page-tools">
     <h2 class="sh">Configuration</h2>
-    <p class="ssub">Backups are saved to Download/MkVenomPro and include your charger calibration.</p>
+    <p class="ssub">Backups are saved to Download/VNM and include your charger calibration.</p>
     <div class="group">
       <div class="item press" id="t-backup"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5M7 8.5l5-5 5 5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></svg></div><div class="txt"><div class="ttl">Backup settings</div><div class="desc">Save the current options to a file you can keep or share</div></div><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6l6 6-6 6"/></svg></span></div></div>
       <div class="item press" id="t-restore"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5V15M7 10l5 5 5-5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></svg></div><div class="txt"><div class="ttl">Restore settings</div><div class="desc">Load a backup, review it, then press Save</div></div><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6l6 6-6 6"/></svg></span></div></div>
@@ -336,7 +336,7 @@ textarea:disabled{opacity:.45}
 
     <h2 class="sh">About</h2>
     <div class="group">
-      <div class="about"><img class="abanner" src="banner.jpg" alt="MkVenomPro Optimizer banner" onerror="this.remove()"><b>MkVenomPro Optimizer <span data-ver>v1.6</span></b>
+      <div class="about"><img class="abanner" src="banner.jpg" alt="VNM Optimizer banner" onerror="this.remove()"><b>VNM Optimizer <span data-ver>v1.6</span></b>
         <p>Heat &amp; battery tuning, device tools, ADB &amp; Fastboot in one app.</p>
         <p>Heat &amp; battery fix for Android. Kernel features support Qualcomm and MediaTek kernels; features a phone does not support are skipped and shown as Unsupported. Tuned and tested on HyperOS. One-shot at boot, no background service (except the opt-in charge-limit and app-cache keepers). Every feature has its own switch and shows exactly what it changes.</p>
         <p style="color:var(--dim)">Font: Google Sans (SIL Open Font License)</p>
@@ -471,7 +471,7 @@ textarea:disabled{opacity:.45}
       o: [['0', 'Off'], ['5000', '5000 mA'], ['3000', '3000 mA'], ['2000', '2000 mA'], ['1500', '1500 mA']] },
     { k: 'charge_limit', s: 'heat', src: 'kernel', risk: 'moderate', type: 'toggle', def: '0', only: 'XIAOMI',
       t: 'Charge limit ~80% (night charging)',
-      d: 'Sets the Xiaomi night_charging flag so charging stops around 80% (current drops to 0, the status may still say Charging). Less heat at the end of a charge and slower battery wear. The charger driver clears this flag on every unplug, so while this is ON a tiny keeper script sets it again whenever a charger is connected (checks every 15 s, no wakelock, sleeps with the phone). This keeper (and the daily cache clean keeper) are the only parts of MkVenomPro Optimizer that keep running; turn them off and nothing runs after the next boot. Xiaomi kernels only.' },
+      d: 'Sets the Xiaomi night_charging flag so charging stops around 80% (current drops to 0, the status may still say Charging). Less heat at the end of a charge and slower battery wear. The charger driver clears this flag on every unplug, so while this is ON a tiny keeper script sets it again whenever a charger is connected (checks every 15 s, no wakelock, sleeps with the phone). This keeper (and the daily cache clean keeper) are the only parts of VNM Optimizer that keep running; turn them off and nothing runs after the next boot. Xiaomi kernels only.' },
 
     // ---- kernel drain
     { k: 'cpu_idle', s: 'kdrain', src: 'kernel', risk: 'safe', type: 'toggle', def: '1',
@@ -529,7 +529,7 @@ textarea:disabled{opacity:.45}
       d: 'Pauses device_config sync so Google server flags cannot overwrite the Doze, freezer and stats values set by this module. While ON, every server-side system flag update is paused; the previous sync mode is restored when you turn it off.' },
     { k: 'gms_doze', s: 'rdrain', src: 'rom', risk: 'moderate', type: 'toggle', def: '0',
       t: 'GMS Doze',
-      d: 'Removes Google Play services from the system Doze whitelist, so it can no longer keep the phone awake in Doze (no metamodule needed). Trade-off: push messages (WhatsApp, Telegram, Gmail, …) all arrive through Google Play services, so in deep Doze they can wait for the next maintenance window — even for protected apps. Leave OFF if notifications must be instant. Android saves this removal across reboots; MkVenomPro Optimizer records it and gives GMS its whitelist back when you turn this off or uninstall.' },
+      d: 'Removes Google Play services from the system Doze whitelist, so it can no longer keep the phone awake in Doze (no metamodule needed). Trade-off: push messages (WhatsApp, Telegram, Gmail, …) all arrive through Google Play services, so in deep Doze they can wait for the next maintenance window — even for protected apps. Leave OFF if notifications must be instant. Android saves this removal across reboots; VNM Optimizer records it and gives GMS its whitelist back when you turn this off or uninstall.' },
     { k: 'scan_off', s: 'rdrain', src: 'rom', risk: 'safe', type: 'toggle', def: '1',
       t: 'Stop background Wi-Fi/Bluetooth scanning',
       d: 'Turns off “Wi-Fi scanning” and “Bluetooth scanning” (location scans while the radios are off) and enables Wi-Fi scan throttling for apps.' },
@@ -619,7 +619,7 @@ textarea:disabled{opacity:.45}
     // ---- more: logging & diagnostics
     { k: 'x_log_nuke', s: 'xlog', src: 'rom', risk: 'moderate', type: 'toggle', def: '0',
       t: 'Deep log cleanup at boot',
-      d: 'Log cleanup, minus what MkVenomPro Optimizer already does: leftover log daemons (tcpdump, cnss_diag, traced, idd/aplogd, vendor loggers) are stopped once at boot, logcat and dmesg buffers are cleared and shrunk to 64 kB, framework tracing switches (activity, autofill, display, window, status bar, input method, voice interaction, Wi-Fi verbose) are turned off, and the listed DropBox report tags (wtf/StrictMode/stats, not crash/ANR/tombstone) are disabled (restored when off). Network statistics are left alone (data usage and data limits keep working). Keep it OFF while you are debugging or collecting bugreports.' },
+      d: 'Log cleanup, minus what VNM Optimizer already does: leftover log daemons (tcpdump, cnss_diag, traced, idd/aplogd, vendor loggers) are stopped once at boot, logcat and dmesg buffers are cleared and shrunk to 64 kB, framework tracing switches (activity, autofill, display, window, status bar, input method, voice interaction, Wi-Fi verbose) are turned off, and the listed DropBox report tags (wtf/StrictMode/stats, not crash/ANR/tombstone) are disabled (restored when off). Network statistics are left alone (data usage and data limits keep working). Keep it OFF while you are debugging or collecting bugreports.' },
     { k: 'x_diag', s: 'xlog', src: 'rom', risk: 'safe', type: 'toggle', def: '1',
       t: 'Silence vendor diagnostics',
       d: 'Diagnostics set: stops charge_logger and misight, disables looper stats and the ANR debugging mechanism, turns off security reports, and sets vendor camera / Wi-Fi / stability log props where the ROM exposes them (props that do not exist are skipped, nothing is persisted). msm_vidc and MMRM debug nodes are quieted too.' },
@@ -1401,7 +1401,7 @@ textarea:disabled{opacity:.45}
   ];
 
   function buildConfig() {
-    var out = '# MkVenomPro Optimizer configuration (written by WebUI)\n# 1 = ON, 0 = OFF. Applied ONCE at the next boot.\ncfg_ver=' + CFG_VER + '\n';
+    var out = '# VNM Optimizer configuration (written by WebUI)\n# 1 = ON, 0 = OFF. Applied ONCE at the next boot.\ncfg_ver=' + CFG_VER + '\n';
     ORDER.forEach(function (g) {
       out += '\n# ---------- ' + g[0] + ' ----------\n';
       g[1].forEach(function (k) { out += k + '=' + String(cfg[k] == null ? '' : cfg[k]).replace(/[\r\n]/g, '') + '\n'; });
@@ -1632,7 +1632,7 @@ textarea:disabled{opacity:.45}
   $('t-defaults').onclick = function () { applyPreset(PRESETS[0]); };
   $('t-revert').onclick = function () {
     modal('Revert system changes now?',
-      'Every setting, device_config flag, whitelist entry, permission and package changed by MkVenomPro Optimizer is restored immediately. ' +
+      'Every setting, device_config flag, whitelist entry, permission and package changed by VNM Optimizer is restored immediately. ' +
       'All system options are then switched off and saved. Kernel options are untouched (they reset on reboot anyway).', [
       { label: 'Cancel' },
       { label: 'Revert', primary: true, fn: function () {
@@ -1847,14 +1847,14 @@ textarea:disabled{opacity:.45}
   /* ------------------------------------------------------------ config backup / restore */
   // first existing Download folder, works in the KernelSU WebUI shell
   var BK_FIND = 'B=""; for d in /sdcard/Download /storage/emulated/0/Download /data/media/0/Download; do ' +
-    '[ -d "$d" ] && { B="$d/MkVenomPro Optimizer"; break; }; done; [ -n "$B" ] || { echo "no Download folder" >&2; exit 2; }; ' +
+    '[ -d "$d" ] && { B="$d/VNM Optimizer"; break; }; done; [ -n "$B" ] || { echo "no Download folder" >&2; exit 2; }; ' +
     'mkdir -p "$B" || { echo "cannot create $B" >&2; exit 3; }; ';
   var SAFE_PATH = /^[A-Za-z0-9_\/.\-]+$/;
 
   function backupCfg() {
     if (!HAS_KSU) { snack('Preview mode — nothing written'); return; }
-    var head = '# MkVenomPro Optimizer settings backup ' + new Date().toISOString().replace('T', ' ').slice(0, 16) +
-      ' (MkVenomPro Optimizer ' + (document.querySelector('[data-ver]').textContent || '') + ')';
+    var head = '# VNM Optimizer settings backup ' + new Date().toISOString().replace('T', ' ').slice(0, 16) +
+      ' (VNM Optimizer ' + (document.querySelector('[data-ver]').textContent || '') + ')';
     var lines = [head].concat(buildConfig().replace(/\n$/, '').split('\n')).map(function (l) {
       return "'" + l.replace(/'/g, '') + "'";
     });
@@ -1868,7 +1868,7 @@ textarea:disabled{opacity:.45}
       var m = /OK\|(.+)/.exec(r.stdout || '');
       if (m) {
         var name = m[1].trim().split('/').pop();
-        snack('Backup saved: Download/MkVenomPro/' + name);
+        snack('Backup saved: Download/VNM/' + name);
       } else {
         snack('Backup failed: ' + ((r.stderr || '').trim().split('\n').pop() || 'error ' + r.errno));
       }
@@ -1892,7 +1892,7 @@ textarea:disabled{opacity:.45}
       });
       var body;
       if (!rows.length) {
-        body = 'No backups yet in <b>' + esc(dir || 'Download/MkVenomPro') + '</b>. Use "Backup settings" first, ' +
+        body = 'No backups yet in <b>' + esc(dir || 'Download/VNM') + '</b>. Use "Backup settings" first, ' +
           'or copy a <b>mkvp_thermal_*.conf</b> file into that folder.';
       } else {
         body = '<div class="hint" style="margin-bottom:10px">' + esc(dir) + '</div>' + rows.map(function (x) {
@@ -1926,7 +1926,7 @@ textarea:disabled{opacity:.45}
     var kv = parseKV(text);
     var d = defaults();
     var known = Object.keys(d).filter(function (k) { return kv[k] !== undefined; }).length;
-    if (known < 5) { snack('This file is not a MkVenomPro Optimizer backup'); return; }
+    if (known < 5) { snack('This file is not a VNM Optimizer backup'); return; }
     kv = migrate(kv);
     Object.keys(d).forEach(function (k) {
       if (kv[k] === undefined) return;
@@ -1940,7 +1940,7 @@ textarea:disabled{opacity:.45}
     var cal = Object.keys(kv).filter(function (k) { return /^cal_\d+$/.test(k) && /^\d+$/.test(kv[k]); });
     var done = function () { snack('Backup loaded \u2014 review it, then press Save'); updateDirty(); };
     if (!cal.length || !HAS_KSU) { done(); return; }
-    var lines = ['# MkVenomPro Optimizer charge level calibration (restored from backup)'].concat(cal.sort(function (a, b) {
+    var lines = ['# VNM Optimizer charge level calibration (restored from backup)'].concat(cal.sort(function (a, b) {
       return parseInt(a.slice(4), 10) - parseInt(b.slice(4), 10);
     }).map(function (k) { return k.slice(4) + '=' + kv[k]; }));
     exec('printf "%s\\n" ' + lines.map(function (l) { return "'" + l + "'"; }).join(' ') + ' > ' + DATA + '/charge_levels.conf')
@@ -1954,7 +1954,7 @@ textarea:disabled{opacity:.45}
       '<label class="btn tonal" style="display:block;text-align:center;margin-bottom:10px">Choose file' +
       '<input type="file" id="imp-file" accept=".conf,.txt,text/plain,*/*" style="display:none"></label>' +
       '<div class="hint" id="imp-info" style="margin-bottom:6px">No file chosen</div>' +
-      '<textarea id="imp-text" rows="7" spellcheck="false" placeholder="# MkVenomPro Optimizer settings backup ..." ' +
+      '<textarea id="imp-text" rows="7" spellcheck="false" placeholder="# VNM Optimizer settings backup ..." ' +
       'style="width:100%;box-sizing:border-box;border-radius:14px;border:1px solid var(--line,#5a4650);background:var(--surf3);' +
       'color:var(--on);padding:10px;font:12px/1.4 monospace;resize:vertical"></textarea>',
       [{ label: 'Cancel' }, { label: 'Import', primary: true, fn: function () {

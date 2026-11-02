@@ -1,7 +1,7 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - Action button: print last boot report (read-only)
+# VNM Optimizer - Action button: print last boot report (read-only)
 HC_DATA=/data/adb/mkvp_thermal
-echo "=== MkVenomPro Optimizer - last boot report ==="
+echo "=== VNM Optimizer - last boot report ==="
 [ -f "$HC_DATA/last_boot" ] && echo "Applied at: $(cat "$HC_DATA/last_boot")"
 echo ""
 if [ -f "$HC_DATA/status.conf" ]; then

@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - app cache cleaner
+# VNM Optimizer - app cache cleaner
 #   cache_clean.sh run [force]  clean once now (force = ignore the minimum size)
 #   cache_clean.sh keeper       daily auto clean (started at boot when "Auto clean app cache" is ON)
 # Cleaning uses Android's own "pm trim-caches" (same as Settings > Storage > free up cache),

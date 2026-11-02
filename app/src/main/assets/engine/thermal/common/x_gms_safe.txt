@@ -1,4 +1,4 @@
-# MkVenomPro Optimizer - safe GMS components to freeze (ads/tracking/analytics only).
+# VNM Optimizer - safe GMS components to freeze (ads/tracking/analytics only).
 # One component per line: package/full.class.Name
 com.google.android.gms/com.google.android.gms.ads.identifier.service.AdvertisingIdNotificationService
 com.google.android.gms/com.google.android.gms.ads.identifier.service.AdvertisingIdService

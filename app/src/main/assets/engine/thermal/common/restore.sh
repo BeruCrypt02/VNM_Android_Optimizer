@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - ROM change restorer (standalone)
+# VNM Optimizer - ROM change restorer (standalone)
 # Usage:
 #   sh restore.sh --all [--wait-boot] [--purge]   restore every recorded ROM change
 #   sh restore.sh --feature <key>                 restore one feature
@@ -36,11 +36,11 @@ _hc_undo() {
       # sys-whitelist removals are saved in /data/system/deviceidle.xml, so undo explicitly
       dumpsys deviceidle sys-whitelist +"$3" </dev/null >/dev/null 2>&1 ;;
     appop)
-      # value = mode before MkVenomPro Optimizer changed it ("-" in old records = default)
+      # value = mode before VNM Optimizer changed it ("-" in old records = default)
       case "$4" in allow|ignore|deny|default|foreground|errored) _m=$4 ;; *) _m=default ;; esac
       cmd appops set "$3" "$2" "$_m" </dev/null >/dev/null 2>&1 ;;
     bucket)
-      # value = bucket before MkVenomPro Optimizer changed it (10/20/30/40/45); anything else -> active
+      # value = bucket before VNM Optimizer changed it (10/20/30/40/45); anything else -> active
       case "$4" in 10|20|30|40|45) _sb=$4 ;; *) _sb=active ;; esac
       am set-standby-bucket "$3" "$_sb" </dev/null >/dev/null 2>&1 ;;
   esac

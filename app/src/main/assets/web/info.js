@@ -1,4 +1,4 @@
-/* MkVenomPro Hardware Info - Device Info HW style (all data read live on the device through root) */
+/* VNM Hardware Info - Device Info HW style (all data read live on the device through root) */
 (function () {
   'use strict';
   var LANG = 'en';
@@ -117,7 +117,7 @@
     var my = ++token, view = $('view');
     $('q').value = ''; $('q').parentNode.style.display = id === 'monitor' ? 'none' : '';
     renderActs();
-    if (!hasBridge()) { view.innerHTML = '<div class="empty">' + TT('Open this from the MkVenomPro app (root bridge not found).', 'افتحها من تطبيق MkVenomPro (جسر الروت مش موجود).') + '</div>'; return; }
+    if (!hasBridge()) { view.innerHTML = '<div class="empty">' + TT('Open this from the VNM app (root bridge not found).', 'افتحها من تطبيق VNM (جسر الروت مش موجود).') + '</div>'; return; }
     if (id === 'monitor') { startMonitor(my); return; }
     if (cache[id] && !force) { view.innerHTML = render(cache[id], ''); return; }
     view.innerHTML = '<div class="busy">' + TT('Reading…', 'بيقرأ…') + '</div>';
@@ -221,7 +221,7 @@
       var d = new Date(), p2 = function (n) { return (n < 10 ? '0' : '') + n; };
       var name = 'DeviceInfo_' + model + '_' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.txt';
       var path = '/sdcard/MKVP LOGS/' + name;
-      var b64 = btoa(unescape(encodeURIComponent('MkVenomPro Hardware Info report\n' + d.toString() + '\n\n' + t)));
+      var b64 = btoa(unescape(encodeURIComponent('VNM Hardware Info report\n' + d.toString() + '\n\n' + t)));
       var chunks = []; for (var k = 0; k < b64.length; k += 24000) chunks.push(b64.slice(k, k + 24000));
       var tmp = '/data/local/tmp/.mkvp_rep.b64', seq = exec('mkdir -p "/sdcard/MKVP LOGS"; rm -f ' + tmp);
       chunks.forEach(function (c) { seq = seq.then(function () { return exec("printf %s '" + c + "' >> " + tmp); }); });

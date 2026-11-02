@@ -1,8 +1,8 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer guard (installed to /data/adb/service.d by MkVenomPro Optimizer).
+# VNM Optimizer guard (installed to /data/adb/service.d by VNM Optimizer).
 # Runs at every boot even while the module is disabled, so nothing is left behind:
 #  - engine disabled (engine_ctl.sh disable): every recorded ROM change is given back
-#    (your MkVenomPro Optimizer settings are kept; enabling the module applies them again)
+#    (your VNM Optimizer settings are kept; enabling the module applies them again)
 #  - engine removed: final cleanup if uninstall.sh could not run, then this file deletes itself
 MOD=/data/adb/mkvp/engine/thermal   # engine folder of the app (no root-manager module)
 D=/data/adb/mkvp_thermal

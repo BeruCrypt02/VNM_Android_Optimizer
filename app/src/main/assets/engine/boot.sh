@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro engine boot dispatcher.
+# VNM engine boot dispatcher.
 # Replaces the Magisk / KernelSU / APatch *module* loader: the app installs the engine into its own
 # folder (/data/adb/mkvp/engine) and this script is started at boot by
 #   - /data/adb/post-fs-data.d/mkvp_engine.sh  (stage: post-fs-data)

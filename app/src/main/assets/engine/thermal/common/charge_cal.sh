@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - charge level calibration (runs ONLY when started from the WebUI)
+# VNM Optimizer - charge level calibration (runs ONLY when started from the WebUI)
 # Steps battery/charge_control_limit through every level while charging,
 # measures the real current, stores "level=mA" and restores the original level.
 # Takes about 5-6 minutes, then exits.
@@ -55,7 +55,7 @@ SIGN=1
 T0=$(( $(cat $B/temp 2>/dev/null || echo 0) / 10 ))
 C0=$(cat $B/capacity 2>/dev/null)
 {
-  echo "# MkVenomPro Optimizer charge level calibration $(date '+%Y-%m-%d %H:%M')"
+  echo "# VNM Optimizer charge level calibration $(date '+%Y-%m-%d %H:%M')"
   echo "# start: ${C0}% ${T0}C, levels 0..$((MAX - 1)) of $MAX (level=mA)"
 } > "$TMP"
 

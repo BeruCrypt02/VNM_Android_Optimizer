@@ -1,11 +1,11 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - installer
+# VNM Optimizer - installer
 # shellcheck disable=SC2034
 SKIPUNZIP=0
 HC_DATA=/data/adb/mkvp_thermal
 
 ui_print " "
-ui_print "  MkVenomPro Thermal Engine"
+ui_print "  VNM Thermal Engine"
 ui_print "  one-shot at boot | tiny opt-in keepers only"
 ui_print " "
 

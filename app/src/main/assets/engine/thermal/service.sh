@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - late_start service
+# VNM Optimizer - late_start service
 # ONE-SHOT: waits for boot, applies every enabled feature once, then exits.
 # Changes made in the WebUI take effect next boot. The only thing that can keep
 # running are the charge-limit keeper (common/chg_watch.sh, only while "Charge limit ~80%"

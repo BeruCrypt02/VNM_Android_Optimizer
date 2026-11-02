@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - uninstall
+# VNM Optimizer - uninstall
 # Kernel values reset by themselves on reboot. ROM changes (settings,
 # device_config, disabled packages) are restored once Android has booted.
 HC_DATA=/data/adb/mkvp_thermal

@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - shared functions (sourced by post-fs-data.sh / service.sh)
+# VNM Optimizer - shared functions (sourced by post-fs-data.sh / service.sh)
 # shellcheck disable=SC2034
 
 export PATH=/system/bin:/system/xbin:/vendor/bin:/data/adb/ksu/bin:/data/adb/magisk:"$PATH"
@@ -944,7 +944,7 @@ f_gms_doze_verify() {
     # Android keeps sys-whitelist removals across reboots, so they must be undone explicitly.
     if ! has_rec gms_doze syswl - "$_g" && hc_gms_unwl && \
        [ "$(sed -n 's/^gms_doze=//p' "$HC_DATA/last_applied.conf" 2>/dev/null)" = 1 ]; then
-      # removed by an older MkVenomPro Optimizer build that did not record it
+      # removed by an older VNM Optimizer build that did not record it
       dumpsys deviceidle sys-whitelist +"$_g" </dev/null >/dev/null 2>&1
       log "gms_doze: GMS returned to the system Doze whitelist (unrecorded removal)"
     fi

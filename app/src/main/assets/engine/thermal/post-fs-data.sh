@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - post-fs-data (blocking stage, kept minimal)
+# VNM Optimizer - post-fs-data (blocking stage, kept minimal)
 # Prepares the GMS Doze overlay BEFORE modules are mounted and sets
 # non-persistent props. Nothing keeps running after this script exits.
 MODDIR=${0%/*}
@@ -14,7 +14,7 @@ HC_CFG=$HC_BOOTCFG
 : > "$HC_LOG"
 : > "$HC_PFD_STATUS"
 HC_STATUS_OUT=$HC_PFD_STATUS
-log "MkVenomPro Optimizer post-fs-data - $(getprop ro.product.device) / $(getprop ro.build.version.incremental)"
+log "VNM Optimizer post-fs-data - $(getprop ro.product.device) / $(getprop ro.build.version.incremental)"
 
 # ---------- GMS Doze: rebuild sysconfig overlay each boot ----------
 rm -rf "$MODDIR/system"

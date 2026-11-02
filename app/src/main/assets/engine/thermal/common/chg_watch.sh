@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - charge limit keeper (only started when "Charge limit ~80%" is ON).
+# VNM Optimizer - charge limit keeper (only started when "Charge limit ~80%" is ON).
 # The charger driver resets night_charging to 0 on every unplug, so a one-shot
 # write is lost at the next replug. This loop sets it again while a charger is
 # connected. It only sleeps and reads two sysfs files: no wakelock, and it does

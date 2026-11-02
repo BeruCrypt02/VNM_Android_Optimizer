@@ -1,6 +1,6 @@
 #!/system/bin/sh
-# MkVenomPro Optimizer - "More" features (safe ones default ON).
-# Everything here follows MkVenomPro Optimizer rules: one-shot at boot, kernel values reset
+# VNM Optimizer - "More" features (safe ones default ON).
+# Everything here follows VNM Optimizer rules: one-shot at boot, kernel values reset
 # on reboot, every settings/device_config/package change is recorded in rom.bak
 # and restored when the switch goes off or the module is removed.
 # This file is sourced by common/functions.sh; it uses its helpers.
@@ -297,7 +297,7 @@ f_x_gms_freeze() {
   fin x_gms_freeze "$_d" "$_d"
 }
 
-# x_track - extended telemetry switches (keys MkVenomPro Optimizer's tracking_off already
+# x_track - extended telemetry switches (keys VNM Optimizer's tracking_off already
 # sets are not repeated)
 f_x_track() {
   if ! on x_track; then
@@ -316,7 +316,7 @@ f_x_track() {
 
 # ================================================================ MORE: logging
 
-# x_log_nuke - deep log cleanup at boot (minus what MkVenomPro Optimizer already does in
+# x_log_nuke - deep log cleanup at boot (minus what VNM Optimizer already does in
 # debug_off / stats_reduce / scan_off)
 f_x_log_nuke() {
   if ! on x_log_nuke; then

@@ -1,7 +1,7 @@
-# MkVenomPro Optimizer - extra runtime props (prop=value), safe entries only.
+# VNM Optimizer - extra runtime props (prop=value), safe entries only.
 # Runtime only (resetprop -n), never persisted.
 # Excluded on purpose: ro.debuggable, persist.ims.disabled, ro.logd.size,
-# dalvik.vm.verify-bytecode, bluetooth/video encoder flags, and props MkVenomPro Optimizer
+# dalvik.vm.verify-bytecode, bluetooth/video encoder flags, and props VNM Optimizer
 # already sets in debug_props.
 debug.hwc_dump_en=0
 debug.sf.ddms=0
