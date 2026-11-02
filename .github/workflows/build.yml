@@ -48,9 +48,9 @@ jobs:
             # no secrets set: throw-away key (APK installs, but every build has a new signature)
             PASS="$(openssl rand -hex 12)"
             keytool -genkeypair -v -keystore "$KS" -storepass "$PASS" -keypass "$PASS" \
-              -alias mkvp -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=MkVenomPro"
+              -alias vnm -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=VNM"
             echo "KEYSTORE_PASSWORD=$PASS" >> "$GITHUB_ENV"
-            echo "KEY_ALIAS=mkvp" >> "$GITHUB_ENV"
+            echo "KEY_ALIAS=vnm" >> "$GITHUB_ENV"
             echo "KEY_PASSWORD=$PASS" >> "$GITHUB_ENV"
           fi
           echo "KEYSTORE_FILE=$KS" >> "$GITHUB_ENV"
@@ -61,12 +61,12 @@ jobs:
       - name: Name the APK
         run: |
           mkdir -p dist
-          cp app/build/outputs/apk/release/*.apk "dist/MkVenomPro_Android_Optimizer-${GITHUB_REF_NAME//\//-}.apk"
+          cp app/build/outputs/apk/release/*.apk "dist/VNM_Android_Optimizer-${GITHUB_REF_NAME//\//-}.apk"
           ls -la dist
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MkVenomPro_Android_Optimizer
+          name: VNM_Android_Optimizer
           path: dist/*.apk
 
       - name: Publish release
